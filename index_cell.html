@@ -16,55 +16,23 @@
         rel="stylesheet">
 
     <!-- Iconos y framework (CDN) -->
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/css/foundation.min.css"
         crossorigin="anonymous" />
 
-    <!-- Estilos principales (locales primero para poder personalizar sobre los de terceros) -->
-    <link rel="stylesheet" href="css/leaflet.css" />
-    <link rel="stylesheet" href="css/L.Control.Layers.Tree.css" />
-    <link rel="stylesheet" href="css/L.Control.Locate.min.css" />
-    <link rel="stylesheet" href="css/leaflet.photon.css" />
-    <link rel="stylesheet" href="css/leaflet-sidebar.css" />
+    <!-- GSAP + ScrollToPlugin -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
 
-
+<!-- Estilos principales -->
+    <link rel="stylesheet" href="style.css" />
 
 
     <style>
         /* CSS mínimo y específico para el layout */
         html,
         body,
-        #map {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            background: #ddd;
-        }
-
-        body {}
-
-        /* Estilos para contenido de media en sidebar si aplica */
-        .sidebar-pane .media img,
-        .sidebar-pane .media video {
-            max-width: 100%;
-            height: auto;
-        }
-
-        /*
-         * Suavizar la transición cuando un feature cambia de color/estado.
-         * Leaflet dibuja los polígonos/lineas como elementos SVG con la clase
-         * .leaflet-interactive, así que aplicar transition sobre fill/stroke
-         * hace que los cambios realizados por setStyle() se animen.
-         */
-        .leaflet-container .leaflet-interactive {
-            transition: fill 500ms ease-in-out, fill-opacity 500ms ease-in-out,
-                stroke 500ms ease-in-out, stroke-opacity 500ms ease-in-out;
-            -webkit-transition: fill 500ms ease-in-out, fill-opacity 500ms ease-in-out,
-                stroke 500ms ease-in-out, stroke-opacity 500ms ease-in-out;
-        }
-
-        /* Para un efecto más suave o más rápido, ajusta tiempo (p. ej. 150ms o 500ms) y la curva de easing */
+        /* Layout móvil - solo grid de botones, sin mapa ni sidebar */
     </style>
 </head>
 
@@ -146,26 +114,8 @@
     </div>
 
 
-    <!-- Scripts: mantener el orden de dependencias (leaflet antes de plugins que lo usan) -->
-    <script src="js/qgis2web_expressions.js"></script>
-    <script src="js/leaflet.js"></script>
-    <script src="js/L.Control.Layers.Tree.min.js"></script>
-    <script src="js/L.Control.Locate.min.js"></script>
-    <script src="js/leaflet.rotatedMarker.js"></script>
-    <script src="js/leaflet.pattern.js"></script>
-    <script src="js/leaflet-hash.js"></script>
-    <script src="js/Autolinker.min.js"></script>
-
-    <!-- Utilidades para etiquetas y rendimiento -->
-    <script src="js/rbush.min.js"></script>
-    <script src="js/labelgun.min.js"></script>
-    <script src="js/labels.js"></script>
-
-    <script src="js/leaflet.photon.js"></script>
-
-    <!-- Datos y control del sidebar (locales) -->
+    <!-- Datos (locales) -->
     <script src="data/load-paises.js"></script>
-    <script src="js/leaflet-sidebar.js"></script>
 
     <!-- jQuery antes de Foundation (Foundation usa jQuery) -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"

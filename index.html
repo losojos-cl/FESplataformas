@@ -14,24 +14,46 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
 
     <!-- Iconos y framework (CDN) -->
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/css/foundation.min.css"
         crossorigin="anonymous" />
+
+    <!-- GSAP + ScrollToPlugin -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
 
     <!-- Estilos principales (locales primero para poder personalizar sobre los de terceros) -->
     <link rel="stylesheet" href="css/leaflet.css" />
     <link rel="stylesheet" href="css/L.Control.Layers.Tree.css" />
     <link rel="stylesheet" href="css/L.Control.Locate.min.css" />
     <link rel="stylesheet" href="css/leaflet.photon.css" />
-    <link rel="stylesheet" href="css/leaflet-sidebar.css" />
-
-
-
 
     <style>
         /* CSS mínimo y específico para el layout */
+        body, h1, h2, h3, h4, h5, h6 {
+            font-family: "Space Grotesk", sans-serif !important;
+        }
+
+        small {
+          font-size: 80%;
+          line-height: inherit;
+          display: inline-block;
+          line-height: 1.25rem;
+          margin-right: 2rem;
+        }
+
+        /* Background image behind everything — visible in non-map areas */
+        #bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: url('https://dplnews.com/wp-content/uploads/2021/06/dplnews_apps-entrega-plataformas-digitales_mc240621.jpeg') center / cover no-repeat;
+            filter: grayscale(100%) brightness(0.075);
+        }
+
         html,
         body,
         #map {
@@ -39,32 +61,200 @@
             width: 100%;
             margin: 0;
             padding: 0;
-            background: #ddd;
         }
 
-        body {}
-
-        /* Estilos para contenido de media en sidebar si aplica */
-        .sidebar-pane .media img,
-        .sidebar-pane .media video {
-            max-width: 100%;
-            height: auto;
+        #map, .leaflet-container{
+                background: none;
         }
+
 
         /*
-         * Suavizar la transición cuando un feature cambia de color/estado.
-         * Leaflet dibuja los polígonos/lineas como elementos SVG con la clase
-         * .leaflet-interactive, así que aplicar transition sobre fill/stroke
-         * hace que los cambios realizados por setStyle() se animen.
+         * Transiciones de hover/selección manejadas por GSAP (ver FASE 3).
+         * CSS transition removido para evitar conflictos con GSAP.
          */
-        .leaflet-container .leaflet-interactive {
-            transition: fill 500ms ease-in-out, fill-opacity 500ms ease-in-out,
-                stroke 500ms ease-in-out, stroke-opacity 500ms ease-in-out;
-            -webkit-transition: fill 500ms ease-in-out, fill-opacity 500ms ease-in-out,
-                stroke 500ms ease-in-out, stroke-opacity 500ms ease-in-out;
+
+        /* ===== Hover tooltip ===== */
+        .country-tooltip-container {
+            background: rgba(0, 0, 0, 0.85) !important;
+            border: none !important;
+            border-radius: 6px !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+            padding: 15px !important;
+            color: #fff !important;
+            font-family: "Space Grotesk", sans-serif !important;
+        }
+        .country-tooltip-container .leaflet-tooltip-content {
+            margin: 0 !important;
+            padding: 8px 12px !important;
+            font-size: .9rem;
+            line-height: 1.4;
+        }
+        .country-tooltip-container .country-tooltip { white-space: nowrap; }
+        .country-tooltip-container .tooltip-name { font-size: .85rem; display: block; }
+        .country-tooltip-container .tooltip-zone {
+            display: inline-block;
+            font-size: .75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: indianred;
+            color: #fff;
+            padding: 1px 6px;
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+        .country-tooltip-container .tooltip-centrales {
+            display: block;
+            font-size: .75rem;
+            opacity: .8;
+            margin-top: 5px;
+        }
+        .country-tooltip-container.leaflet-tooltip-top .leaflet-tooltip-tip {
+            background: rgba(0, 0, 0, 0.85) !important;
+            border: none !important;
         }
 
-        /* Para un efecto más suave o más rápido, ajusta tiempo (p. ej. 150ms o 500ms) y la curva de easing */
+        /* ===== Rich popup ===== */
+        .country-popup-container .leaflet-popup-content-wrapper {
+            border-radius: 8px !important;
+            padding: 0 !important;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25) !important;
+        }
+        .country-popup-container .leaflet-popup-content {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 420px !important;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .country-popup-container .leaflet-popup-close-button {
+            top: 8px !important;
+            right: 8px !important;
+            color: #fff !important;
+            font-size: 20px !important;
+            z-index: 10;
+        }
+        .country-popup-container.leaflet-popup .leaflet-popup-tip {
+            background: #1a1a1a !important;
+        }
+
+        .country-popup { font-family: "Space Grotesk", sans-serif; color: #222; }
+        .popup-header {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 1rem 1.25rem 0.75rem;
+            display: flex;
+            align-items: baseline;
+            gap: .75rem;
+            flex-wrap: wrap;
+        }
+        .popup-header .popup-title {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+            flex: 1;
+        }
+        .popup-header .popup-zone-badge {
+            font-size: .6rem;
+            text-transform: uppercase;
+            background: indianred;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .popup-body { padding: 0.75rem 1.25rem 1rem; }
+        .popup-section { margin-bottom: .75rem; }
+        .popup-section:last-child { margin-bottom: 0; }
+        .popup-section-title {
+            font-size: .7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: .5px;
+            color: #666;
+            margin: 0 0 .35rem 0;
+            padding-bottom: .25rem;
+            border-bottom: 1px solid #eee;
+        }
+        .popup-section-title .popup-count {
+            display: inline-block;
+            background: #ddd;
+            color: #555;
+            font-size: .6rem;
+            padding: 0 5px;
+            border-radius: 8px;
+            margin-left: 4px;
+        }
+        .popup-descripcion {
+            font-size: .75rem;
+            line-height: 1.5;
+            color: #444;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .popup-centrales-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .popup-central-item {
+            font-size: .78rem;
+            padding: .25rem 0 .25rem .75rem;
+            border-left: 2px solid indianred;
+            margin-bottom: .25rem;
+            line-height: 1.3;
+            color: #333;
+        }
+        .popup-central-item:last-child { margin-bottom: 0; }
+        .popup-leg-table { display: flex; flex-direction: column; gap: .25rem; }
+        .popup-leg-entry {
+            display: flex;
+            align-items: baseline;
+            gap: .4rem;
+            font-size: .75rem;
+            padding: .25rem .5rem;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        .popup-leg-entry .popup-leg-badge {
+            display: inline-block;
+            font-size: .55rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: .1rem .3rem;
+            border-radius: 2px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .popup-leg-badge.leg-badge-verde { background: #d4edda; color: #155724; }
+        .popup-leg-badge.leg-badge-amarillo { background: #fff3cd; color: #856404; }
+        .popup-leg-badge.leg-badge-rojo { background: #f8d7da; color: #721c24; }
+        .popup-leg-badge.leg-badge-gris { background: #e2e3e5; color: #383d41; }
+        .popup-leg-badge.leg-badge-azul { background: #d1ecf1; color: #0c5460; }
+        .popup-leg-norma { flex: 1; }
+        .popup-url { margin-top: .25rem; text-align: right; }
+        .popup-url .button { font-size: .7rem; padding: .3rem .6rem; margin: 0; }
+
+        /* Scrollbar styling for popup body */
+        .country-popup-container .leaflet-popup-content::-webkit-scrollbar { width: 5px; }
+        .country-popup-container .leaflet-popup-content::-webkit-scrollbar-track { background: #f0f0f0; }
+        .country-popup-container .leaflet-popup-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+        /* Button overrides (preserved from leaflet-sidebar.css) */
+        .button {
+          color: white !important;
+          background: black;
+          font-weight: 600;
+          text-decoration: none;
+          border-radius: 5px;
+        }
+        .button:hover, .button:focus {
+          color: white !important;
+          background: #969696;
+          text-decoration: none;
+        }
     </style>
 </head>
 
@@ -94,210 +284,7 @@
         </div>
     </div>
 
-    <div class="off-canvas-content" data-off-canvas-content></div>
-    <!-- Sidebar -->
-    <div id="sidebar" class="sidebar collapsed" aria-hidden="false">
-        <div class="sidebar-tabs" role="tablist" aria-label="Paneles">
-            <ul role="tablist">
-                <li><a href="#home" role="tab"><i class="fa fa-bars" aria-hidden="true"></i></a></li>
-                <li><a href="#profile" role="tab"><i class="fa fa-user" aria-hidden="true"></i></a></li>
-                <li><a href="#messages" role="tab"><i class="fa fa-bookmark" aria-hidden="true"></i></a></li>
-                <!-- Nueva pestaña para info de feature -->
-                <li><a href="#feature-info" role="tab"><i class="fa fa-info-circle" aria-hidden="true"></i></a></li>
-                <!-- <li><a href="https://github.com/" role="tab" target="_blank" rel="noopener"><i class="fa fa-globe"
-                            aria-hidden="true"></i></a></li> -->
-            </ul>
-
-            <ul role="tablist">
-                <li><a href="#settings" role="tab"><i class="fa fa-gear" aria-hidden="true"></i></a></li>
-            </ul>
-        </div>
-
-        <div class="sidebar-content" role="document">
-            <div class="sidebar-pane" id="home">
-                <h1 class="sidebar-header">
-                    plataformas
-                    <span class="sidebar-close"><i class="fa fa-caret-left" aria-hidden="true"></i></span>
-                </h1>
-
-                <div class="sidebar-content">
-
-                    <p>
-                        Sindicatos tradicionales y trabajadores de plataformas en América Latina:
-                        Estrategias, repertorios y oportunidades para la representación
-                    </p>
-
-                    <p><small>En la última década, el trabajo mediado por plataformas digitales —ya sea de reparto,
-                            transporte, cuidados, microtareas o servicios freelance— dejó de ser una novedad para
-                            convertirse en parte estable del mercado laboral en América Latina. Su expansión vino
-                            acompañada, casi siempre, de precariedad laboral. Hablamos de ausencia de derechos
-                            colectivos y de predominio de informalidad, de ingresos inestables y, en muchos casos, de
-                            una completa desprotección social.
-                            El sindicalismo tradicional, históricamente enfocado en el trabajo asalariado formal,
-                            enfrenta entonces un reto complejo. No basta con mantener sus viejas estructuras; ahora debe
-                            lidiar con un panorama marcado por la fragmentación laboral, la mediación tecnológica y la
-                            transnacionalización de las empresas. A lo anterior, se suma un factor generacional y
-                            cultural nada menor: buena parte de las y los trabajadores de plataformas —jóvenes,
-                            migrantes o personas que encadenan varios empleos precarios— no se ve reflejada en la
-                            cultura sindical clásica.
-                        </small></p>
-
-                </div>
-            </div>
-
-            <div class="sidebar-pane" id="profile">
-                <h2 class="sidebar-header">Equipo <span class="sidebar-close"><i class="fa fa-caret-left"
-                            aria-hidden="true"></i></span></h2>
-                <div class="sidebar-content">
-                    <div class="grid-x grid-margin-x grid-margin-y">
-                        <div class="small-12 cell">
-                            <p><small>Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque commodi reiciendis
-                                    iste earum voluptates possimus voluptas eos quibusdam doloribus obcaecati delectus
-                                    culpa facilis sed reprehenderit rerum, excepturi, mollitia ab neque.</small></p>
-                            <ul class="accordion" data-accordion data-allow-all-closed="true">
-                                <li class="accordion-item" data-accordion-item>
-                                    <a href="#" class="accordion-title">María Leonela Artavia Jiménez</a>
-                                    <div class="accordion-content" data-tab-content>
-                                        <small>Master Scientae en Estudios Latinoamericanos con énfasis en cultura y
-                                            desarrollo. Licenciada en Economía de la Universidad Nacional de Costa Rica.
-                                            Profesora e investigadora de la Escuela de Economía de la Universidad
-                                            Nacional, Costa Rica, donde coordina el Proyecto de Investigación “Trabajo y
-                                            crisis: aportes desde una economía política crítica heterodoxa para la vida”
-                                            y la Cátedra de Economía Política. Estudiosa del mundo del trabajo en
-                                            Centroamérica especialmente en los temas de precariedad e informalidad en el
-                                            contexto de transformaciones tecnológicas además investiga sobre la Economía
-                                            del Cuidado y las implicaciones del trabajo de cuidados no remunerado en el
-                                            trabajo remunerado de las mujeres. </small>
-                                    </div>
-                                </li>
-                                <li class="accordion-item" data-accordion-item>
-                                    <a href="#" class="accordion-title">Andrea Del Bono</a>
-                                    <div class="accordion-content" data-tab-content>
-                                        <small>Doctora en Ciencias Políticas y Sociología, Universidad Complutense de
-                                            Madrid (UCM), Investigadora del Consejo Nacional de Investigaciones
-                                            Científicas y Técnicas (CONICET/Argentina). Profesora de la Universidad
-                                            Nacional Arturo Jauretche (UNAJ) y de la Universidad Nacional de La Plata
-                                            (UNLP), docente de posgrado de la Maestría en Ciencias Sociales del Trabajo
-                                            de la Universidad de Buenos Aires (UBA). Directora del “Programa de Estudios
-                                            del Trabajo y Análisis Críticos de la Flexibilización Laboral”
-                                            (PET-ICSyA-UNAJ). Especializada en el campo de la sociología del trabajo,
-                                            sus investigaciones profundizan en el estudio de las dinámicas de
-                                            transformación y flexibilización de los procesos productivos y las
-                                            relaciones laborales en actividades de servicios, en su impacto sobre los/as
-                                            trabajadores/as y en sus estrategias y respuestas desde la organización
-                                            colectiva. Es autora de numerosos artículos, libros y capítulos en
-                                            publicaciones científicas. </small>
-                                    </div>
-                                </li>
-                                <li class="accordion-item" data-accordion-item>
-                                    <a href="#" class="accordion-title">Florencia Eregoitía</a>
-                                    <div class="accordion-content" data-tab-content>
-                                        <small>Doctoranda en Ciencias Sociales (UBA), becaria del Consejo Nacional de
-                                            Investigaciones Científicas y Técnicas (CONICET) con lugar de trabajo en el
-                                            Programa de Estudios del Trabajo (PET/UNAJ). Es Licenciada y Profesora en
-                                            Sociología (FaHCE/UNLP), profesora en nivel medio y universitario. Se
-                                            inscribe en el campo de estudios sobre el trabajo, puntualmente analizando
-                                            la manera en que las plataformas median, organizan y transforman el trabajo,
-                                            así como las experiencias de quienes se desempeñan a través de ellas. Sus
-                                            investigaciones recientes han buscado dar cuenta de los usos y valoraciones
-                                            que los trabajadores del Sector de Software y Servicios Informáticos (SSI)
-                                            argentino construyen sobre su trabajo en estos entornos.</small>
-                                    </div>
-                                </li>
-                                <li class="accordion-item" data-accordion-item>
-                                    <a href="#" class="accordion-title">Álvaro Galliorio</a>
-                                    <div class="accordion-content" data-tab-content>
-                                        <small>Doctorando en Estudios Sociales Avanzados (ESOC-UCEN), Universidad
-                                            Central de Chile. Magister en Estudios Coreanos, Universidad Central de
-                                            Chile. Magister en Sociología, Universidad Alberto Hurtado. Sociólogo,
-                                            Universidad Católica de Temuco. Investigador de la Fundación Grupo de
-                                            Estudios del Trabajo desde el Sur (GETSUR). Entre sus intereses de
-                                            investigación se encuentran los estudios del trabajo (con énfasis en la
-                                            precariedad laboral y el sindicalismo), la transformación tecnológica y la
-                                            sociedad coreana.</small>
-                                    </div>
-                                </li>
-                                <li class="accordion-item" data-accordion-item>
-                                    <a href="#" class="accordion-title">Dasten Julián Vejar</a>
-                                    <div class="accordion-content" data-tab-content>
-                                        <small>Doctor en Sociología por la Universidad Friedrich Schiller de Jena,
-                                            Alemania. Es investigador de la Fundación Grupo de Estudios del Trabajo
-                                            desde el Sur (GETSUR). Su trabajo académico se centra en los estudios del
-                                            trabajo y en el análisis crítico de la precariedad y la precarización del
-                                            empleo, la vida y las formas sociales en el Sur Global, abordando también el
-                                            (neo)extractivismo, el cambio tecnológico y las transiciones justas hacia
-                                            sociedades sostenibles. Sus publicaciones recientes abordan temas como las
-                                            transformaciones socio-tecnológicas del trabajo, la segmentación laboral y
-                                            desigualdad territorial, los repertorios sindicales en contextos de crisis y
-                                            las formas contemporáneas de precariedad en Chile y América Latina.
-                                            Asimismo, he contribuido con capítulos en obras colectivas sobre
-                                            extractivismo, racismo ambiental y sostenibilidad, articulando un enfoque
-                                            crítico, interseccional y ecológico para comprender las dinámicas del
-                                            capitalismo contemporáneo.</small>
-                                    </div>
-                                </li>
-                                <li class="accordion-item" data-accordion-item>
-                                    <a href="#" class="accordion-title">Jacob Carlos Lima</a>
-                                    <div class="accordion-content" data-tab-content>
-                                        <small>Doctor en Sociología por la Universidad de São Paulo; profesor titular
-                                            del Departamento de Sociología de la Universidad Federal de São Carlos,
-                                            Brasil; investigador del CNPq, Consejo Nacional de Desarrollo Científico y
-                                            Tecnológico. Actúa en investigaciones en las áreas de Sociología del Trabajo
-                                            y Sociología Económica.</small>
-                                    </div>
-                                </li>
-                                <li class="accordion-item" data-accordion-item>
-                                    <a href="#" class="accordion-title">Nicolás Pareja Arellano</a>
-                                    <div class="accordion-content" data-tab-content>
-                                        <small>Sociólogo, Magíster en Cs. Sociales. Dr. en Ciencias Sociales.
-                                            Investigador y docente en Universidad Católica de Temuco. Líneas de
-                                            investigación: estudios rurales, desigualdad social, estudios del desarrollo
-                                            y del territorio. Su enfoque se caracteriza por una lectura situada, crítica
-                                            y comprometida con la justicia social y el conocimiento producido desde el
-                                            Sur Global.</small>
-                                    </div>
-                                </li>
-                            </ul>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebar-pane" id="messages">
-                <h1 class="sidebar-header">Investigación <span class="sidebar-close"><i class="fa fa-caret-left"
-                            aria-hidden="true"></i></span></h1>
-
-                <p>lo que buscamos es entender —y documentar— cuáles son los principales repertorios que se encuentran
-                    implementando y desarrollando las principales centrales sindicales de la región para acercarse,
-                    organizar y representar a quienes trabajan en plataformas. No se trata solo de hacer una lista de
-                    acciones de forma descriptiva, sino que queremos relevar qué repertorios han funcionado bien, qué
-                    errores se han repetido y dónde pueden abrirse nuevas puertas para que el sindicalismo gane fuerza
-                    en este sector. </p>
-                <p><small>El estudio cubrirá tres subregiones, cada una con particularidades en su estructura sindical,
-                        legislación laboral y grado de desarrollo del trabajo en plataformas:
-                        <b>Co1 – Centro y Norteamérica:</b> México —donde hay más volumen de información— y experiencias
-                        relevantes en Centroamérica. (Guatemala, Honduras, El Salvador, Nicaragua, Costa Rica, República
-                        Dominicana y Panamá).
-                        <b>Co2 – Cono Sur-Norte:</b> Colombia, Venezuela, Ecuador, Brasil y Paraguay.
-                        <b>Co3 – Cono Sur-Sur:</b> Uruguay, Bolivia, Perú, Argentina y Chile.</small></p>
-            </div>
-
-            <!-- Nuevo panel para mostrar la información del feature (país) -->
-            <div class="sidebar-pane" id="feature-info" aria-hidden="true">
-                <h1 class="sidebar-header">Información del país <span class="sidebar-close"><i class="fa fa-caret-left"
-                            aria-hidden="true"></i></span></h1>
-                <div class="sidebar-content">
-                    <p><small> <i>Haz clic sobre un país en el mapa para ver aquí la información.</i></small></p>
-                </div>
-            </div>
-
-            <div class="sidebar-pane" id="settings">
-                <h1 class="sidebar-header">Repositorio <span class="sidebar-close"><i class="fa fa-caret-left"
-                            aria-hidden="true"></i></span></h1>
-            </div>
-        </div>
-    </div>
+    <div id="bg-layer"></div>
 
     <!-- Contenedor del mapa -->
     <div id="map" role="application" aria-label="Mapa interactivo"></div>
@@ -319,9 +306,8 @@
 
     <script src="js/leaflet.photon.js"></script>
 
-    <!-- Datos y control del sidebar (locales) -->
+    <!-- Datos (locales) -->
     <script src="data/load-paises.js"></script>
-    <script src="js/leaflet-sidebar.js"></script>
 
     <!-- jQuery antes de Foundation (Foundation usa jQuery) -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -333,6 +319,20 @@
     <script>
         (function () {
             'use strict';
+
+            // ===== GSAP: respetar prefers-reduced-motion =====
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.globalTimeline.timeScale(0);
+            }
+
+            // ===== Fondo aleatorio (FASE 1) =====
+            // Colocar imágenes WebP <200KB en assets/bg/ (bg01.webp, bg02.webp, ...)
+            // Descomentar cuando existan las imágenes:
+            /*
+            const bgImages = ['bg01.webp', 'bg02.webp', 'bg03.webp', 'bg04.webp', 'bg05.webp', 'bg06.webp'];
+            const selected = bgImages[Math.floor(Math.random() * bgImages.length)];
+            document.getElementById('bg-layer').style.backgroundImage = `url(assets/bg/${selected})`;
+            */
 
             // Creación del mapa: opciones iniciales ligeras
             const map = L.map('map', {
@@ -433,61 +433,33 @@
                 applyHighlightStyle(layer);
             }
 
-            // Eliminar filas vacías de popups basadas en clase 'visible-with-data'
-            function removeEmptyRowsFromPopupContent(content, feature) {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = content;
-                const rows = tempDiv.querySelectorAll('tr');
-                rows.forEach(row => {
-                    const td = row.querySelector('td.visible-with-data');
-                    const key = td ? td.id : '';
-                    if (td && td.classList.contains('visible-with-data') && (feature.properties[key] == null)) {
-                        row.remove();
-                    }
-                });
-                return tempDiv.innerHTML;
+            // Badge class for legislation estado
+            function getLegBadgeClass(estado) {
+                const e = (estado || '').toLowerCase();
+                if (e.includes('sancionada') || e.includes('vigente') || e.includes('publicada')) return 'leg-badge-verde';
+                if (e.includes('tramitaci') || e.includes('trámite') || e.includes('ingresado') || e.includes('presentado')) return 'leg-badge-amarillo';
+                if (e.includes('derogado') || e.includes('caducado') || e.includes('archivado')) return 'leg-badge-rojo';
+                if (e.includes('no se localiz') || e.includes('sin sanci') || e.includes('sin norma')) return 'leg-badge-gris';
+                return 'leg-badge-azul';
             }
 
-            // Ajusta el popup si el contenido contiene media (imagen/audio/video)
-            function addClassToPopupIfMedia(content, popup) {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = content;
-                const imgTd = tempDiv.querySelector('td img');
-                const contentNode = popup && popup._contentNode;
-                if (!contentNode) return;
-
-                if (imgTd) {
-                    const src = imgTd.getAttribute('src') || '';
-                    const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|avif)$/i.test(src);
-                    const isAudio = /\.(mp3|wav|ogg|aac)$/i.test(src);
-                    const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(src);
-
-                    if (isImage) {
-                        contentNode.classList.add('media');
-                        setTimeout(() => popup.update(), 10);
-                    } else if (isAudio) {
-                        const audio = document.createElement('audio');
-                        audio.controls = true;
-                        audio.src = src;
-                        imgTd.parentNode.replaceChild(audio, imgTd);
-                        contentNode.classList.add('media');
-                        setTimeout(() => { popup.setContent(tempDiv.innerHTML); popup.update(); }, 10);
-                    } else if (isVideo) {
-                        const video = document.createElement('video');
-                        video.controls = true;
-                        video.src = src;
-                        video.style.maxHeight = "60vh";
-                        video.style.maxWidth = "60vw";
-                        imgTd.parentNode.replaceChild(video, imgTd);
-                        contentNode.classList.add('media');
-                        video.addEventListener('loadedmetadata', () => popup.update());
-                        setTimeout(() => { popup.setContent(tempDiv.innerHTML); popup.update(); }, 10);
-                    } else {
-                        contentNode.classList.remove('media');
-                    }
-                } else {
-                    contentNode.classList.remove('media');
+            // Richer legislation HTML for the popup (with badges)
+            function renderPopupLegislacionHTML(countryName) {
+                if (!legislacionData || !legislacionData[countryName] || legislacionData[countryName].length === 0) {
+                    return '';
                 }
+                let html = '<div class="popup-section"><h6 class="popup-section-title">Legislación asociada <span class="popup-count">' +
+                    legislacionData[countryName].length + '</span></h6><div class="popup-leg-table">';
+                legislacionData[countryName].forEach(entry => {
+                    const badgeClass = getLegBadgeClass(entry.estado);
+                    html += `
+                        <div class="popup-leg-entry">
+                            <span class="popup-leg-badge ${badgeClass}">${entry.tipo}</span>
+                            <strong class="popup-leg-norma">${entry.norma}</strong>
+                        </div>`;
+                });
+                html += '</div></div>';
+                return html;
             }
 
             // Controles del mapa
@@ -498,21 +470,6 @@
 
             // ---------- DATOS DE LEGISLACIÓN ----------
             let legislacionData = null;
-
-            function renderLegislacionHTML(countryName) {
-                if (!legislacionData || !legislacionData[countryName] || legislacionData[countryName].length === 0) {
-                    return '<div class="leg-section"><h6 class="section-header">Legislaci\u00f3n</h6><p>No disponible</p></div>';
-                }
-                let html = '<div class="leg-section"><h6 class="section-header">Legislaci\u00f3n</h6><div class="leg-table">';
-                legislacionData[countryName].forEach(entry => {
-                    html += `
-                        <div class="leg-entry">
-                            ${entry.tipo} ${entry.norma}
-                        </div>`;
-                });
-                html += '</div></div>';
-                return html;
-            }
 
             // Cargar legislación
             fetch('./data/legislacion.json')
@@ -567,121 +524,114 @@
                 pane.style.zIndex = 400;
                 pane.style.mixBlendMode = 'normal';
 
-                // popup por feature
+                // popup por feature: hover tooltip + rich popup on click
                 function pop_FESplataformas_0(feature, layer) {
+                    const props = feature.properties;
+                    const countryName = props['COUNTRY'] || '';
+                    const zone = props['ZONA'] || '';
+
+                    // Count non-null centrales
+                    let centralesCount = 0;
+                    for (let i = 1; i <= 7; i++) {
+                        if (props['CENTRAL' + i]) centralesCount++;
+                    }
+
+                    // --- Hover tooltip ---
+                    const tooltipHtml = `
+                        <div class="country-tooltip">
+                            <strong class="tooltip-name">${linkifySafe(countryName)}</strong>
+                            ${zone ? `<span class="tooltip-zone">${linkifySafe(zone)}</span>` : ''}
+                            <span class="tooltip-centrales">${centralesCount} central${centralesCount !== 1 ? 'es' : ''} sindicales</span>
+                        </div>`;
+                    layer.bindTooltip(tooltipHtml, {
+                        sticky: true,
+                        direction: 'top',
+                        offset: L.point(0, -10),
+                        className: 'country-tooltip-container'
+                    });
+
+                    // --- Hover highlight ---
                     layer.on({
                         mouseover: highlightFeature,
                         mouseout(e) {
                             const layer = e.target;
-
-                            // Si este layer era el hover actual, quitar su estilo temporal
                             if (hoverLayer === layer) {
-                                // Sólo resetear si no es la selección fija
                                 if (selectedLayer !== layer) {
                                     try { resetLayerStyle(layer); } catch (err) { /* noop */ }
                                 }
                                 hoverLayer = null;
                             }
-
-                            // Si hay una selección persistente, reaplicamos su estilo (vuelve a rojo)
                             if (selectedLayer) {
                                 try { applyHighlightStyle(selectedLayer); } catch (err) { /* noop */ }
                             }
                         }
                     });
 
-                    // Usamos linkifySafe en lugar de propStr para evitar HTML escapado
-                    const popupContent = `
-                        <table>
-                            <tr id='cell-pais'><td colspan="2">${linkifySafe(feature.properties['COUNTRY'])}</td></tr>
-                            <tr id='cell-zona'><td colspan="2">${linkifySafe(feature.properties['ZONA'])}</td></tr>
-                            <tr id='cell-indicador'><td colspan="2">${linkifySafe(feature.properties['INDICADOR'])}</td></tr>
-                            <tr id='cell-descripcion'><td colspan="2">${linkifySafe(feature.properties['DESCRIPCION'])}</td></tr>
-                            <tr class="section-header"><td colspan="2"><h6 class="section-header">Centrales Sindicales</h6></td></tr>
-                            <tr id='cell-central1'><td colspan="2">${linkifySafe(feature.properties['CENTRAL1'])}</td></tr>
-                            <tr id='cell-central2'><td colspan="2">${linkifySafe(feature.properties['CENTRAL2'])}</td></tr>
-                            <tr id='cell-central3'><td colspan="2">${linkifySafe(feature.properties['CENTRAL3'])}</td></tr>
-                            <tr id='cell-central4'><td colspan="2">${linkifySafe(feature.properties['CENTRAL4'])}</td></tr>
-                            <tr id='cell-central5'><td colspan="2">${linkifySafe(feature.properties['CENTRAL5'])}</td></tr>
-                            <tr id='cell-central6'><td colspan="2">${linkifySafe(feature.properties['CENTRAL6'])}</td></tr>
-                            <tr id='cell-central7'><td colspan="2">${linkifySafe(feature.properties['CENTRAL7'])}</td></tr>
-                         </table>
-                    `;
-                    const content = removeEmptyRowsFromPopupContent(popupContent, feature);
-
-                    // Al abrir el popup revisamos media y dejamos el HTML con anchors intactos
-                    layer.on('popupopen', (e) => addClassToPopupIfMedia(content, e.popup));
-                    layer.bindPopup(content, { maxHeight: 400 });
-
-                    // Manejo: al clickar el feature mostramos la misma info en el sidebar
+                    // --- Click: open rich popup ---
                     layer.on('click', function (e) {
-                        try {
-                            // cerrar popup para evitar solapamiento (si se abrió)
-                            if (e.target && typeof e.target.closePopup === 'function') e.target.closePopup();
-                        } catch (err) { /* noop */ }
-
-                        // Al hacer click, fijamos la capa (cambia selección)
                         setSelectedLayer(e.target);
 
-                        // Si había un hover distinto, resetearlo porque ahora la selección debe prevalecer
                         if (hoverLayer && hoverLayer !== selectedLayer) {
                             try { resetLayerStyle(hoverLayer); } catch (err) { /* noop */ }
                         }
                         hoverLayer = null;
 
-                        // Preparar contenido para el panel del sidebar
-                        const paneEl = document.getElementById('feature-info');
-                        if (!paneEl) return;
+                        // Build rich popup content
+                        const descripcion = props['DESCRIPCION'] || '';
 
-                        // Construir HTML: cabecera con nombre y boton de cierre ya presente en markup
-                        const headerHtml = `<h1 class="sidebar-header">${linkifySafe(feature.properties['COUNTRY'] || 'Información')}<span class="sidebar-close"><i class="fa fa-caret-left" aria-hidden="true"></i></span></h1>`;
-
-                        // Colocar contenido (respetando anchors ya creados)
-                        const legislacionHTML = renderLegislacionHTML(feature.properties['COUNTRY']);
-                        const repositorioLink = feature.properties['URLPAIS']
-                            ? '<div style="margin-top:1rem;text-align:right;">' + linkifySafe(feature.properties['URLPAIS']) + '</div>'
-                            : '';
-                        paneEl.innerHTML = headerHtml + '<div class="sidebar-content">' + content + legislacionHTML + repositorioLink + '</div>';
-
-                        // Marcar el panel como activo y abrir el sidebar (quitamos "collapsed")
-                        document.querySelectorAll('.sidebar-pane').forEach(p => p.classList.remove('active'));
-                        paneEl.classList.add('active');
-
-                        const sidebarRoot = document.getElementById('sidebar');
-                        if (sidebarRoot) {
-                            sidebarRoot.classList.remove('collapsed');
-                            sidebarRoot.setAttribute('aria-hidden', 'false');
-                        }
-
-                        // Añadir manejador al botón de cierre del panel para colapsar el sidebar
-                        const closeBtn = paneEl.querySelector('.sidebar-close');
-                        if (closeBtn && !closeBtn._listenerAdded) {
-                            closeBtn.addEventListener('click', function () {
-                                const sb = document.getElementById('sidebar');
-                                if (sb) {
-                                    sb.classList.add('collapsed');
-                                    sb.setAttribute('aria-hidden', 'true');
-                                }
-                                paneEl.classList.remove('active');
-
-                                // Al cerrar el panel feature-info, limpiar la selección fijada
-                                clearSelectedLayer();
-                            });
-                            // evitar añadir múltiples listeners
-                            closeBtn._listenerAdded = true;
-                        }
-
-                        // Aplicar clase media si corresponde (muy simple: si contiene <img> o <video>)
-                        const contentNode = paneEl.querySelector('.sidebar-content');
-                        if (contentNode) {
-                            if (/<img\s|<video\s/i.test(content)) {
-                                contentNode.classList.add('media');
-                            } else {
-                                contentNode.classList.remove('media');
+                        // Centrales list
+                        let centralesHtml = '';
+                        for (let i = 1; i <= 7; i++) {
+                            const central = props['CENTRAL' + i];
+                            if (central) {
+                                centralesHtml += `<li class="popup-central-item">${linkifySafe(central)}</li>`;
                             }
                         }
 
-                        // Opcional: ajustar vista para centrar el feature (si tiene bounds)
+                        // Legislation with badges
+                        const legislacionHtml = renderPopupLegislacionHTML(countryName);
+
+                        // URL
+                        const urlHtml = props['URLPAIS']
+                            ? `<div class="popup-url"><a class="button" href="${props['URLPAIS']}" target="_self">ir al repositorio</a></div>`
+                            : '';
+
+                        const popupHtml = `
+                            <div class="country-popup">
+                                <div class="popup-header">
+                                    <h2 class="popup-title">${linkifySafe(countryName)}</h2>
+                                    ${zone ? `<span class="popup-zone-badge">${linkifySafe(zone)}</span>` : ''}
+                                </div>
+                                <div class="popup-body">
+                                    ${descripcion ? `
+                                    <div class="popup-section">
+                                        <h6 class="popup-section-title">Descripción</h6>
+                                        <div class="popup-descripcion">${linkifySafe(descripcion)}</div>
+                                    </div>` : ''}
+                                    ${centralesHtml ? `
+                                    <div class="popup-section">
+                                        <h6 class="popup-section-title">Centrales Sindicales <span class="popup-count">${centralesCount}</span></h6>
+                                        <ul class="popup-centrales-list">${centralesHtml}</ul>
+                                    </div>` : ''}
+                                    ${legislacionHtml}
+                                    ${urlHtml ? `
+                                    <div class="popup-section">
+                                        ${urlHtml}
+                                    </div>` : ''}
+                                </div>
+                            </div>`;
+
+                        // Close any existing popup and open rich one
+                        try { layer.closePopup(); } catch (err) { /* noop */ }
+                        layer.unbindPopup();
+                        layer.bindPopup(popupHtml, {
+                            maxWidth: 500,
+                            className: 'country-popup-container',
+                            closeButton: true
+                        });
+                        layer.openPopup(e.latlng || (e.target.getCenter ? e.target.getCenter() : undefined));
+
+                        // Fit view to selected country
                         try {
                             if (e.target && typeof e.target.getBounds === 'function') {
                                 const b = e.target.getBounds();
@@ -689,9 +639,7 @@
                             } else if (e.latlng) {
                                 map.panTo(e.latlng);
                             }
-                        } catch (err) {
-                            // noop
-                        }
+                        } catch (err) { /* noop */ }
                     });
                 }
 
@@ -755,112 +703,6 @@
                 window.removeEventListener('paisesLoaded', initPaises);
             });
 
-            // Inicializar sidebar (si el plugin está disponible) y guardar referencia
-            let sidebarControl = null;
-            if (typeof L.control.sidebar === 'function') {
-                sidebarControl = L.control.sidebar('sidebar').addTo(map);
-            } else if (window.sidebar) {
-                try { sidebar.addTo(map); } catch (e) { /* noop */ }
-            }
-
-
-            /* --- Insertar dentro del IIFE, justo después de inicializar el sidebar --- */
-            function closeFeatureInfo() {
-                const paneEl = document.getElementById('feature-info');
-                if (!paneEl) return;
-                // quitar la clase active para que no quede sobre el resto de paneles
-                paneEl.classList.remove('active');
-                paneEl.setAttribute('aria-hidden', 'true');
-                // opcional: restaurar contenido por defecto (evita que quede información antigua)
-                const content = paneEl.querySelector('.sidebar-content');
-                if (content) {
-                    content.innerHTML = '<p class="lorem">Haz clic sobre un país en el mapa para ver aquí la información.</p>';
-                    content.classList.remove('media');
-                }
-
-                // Al cerrar el panel feature-info limpiamos la selección fijada
-                clearSelectedLayer();
-            }
-
-            // Cerrar feature-info cuando se pinche en cualquier pestaña del tablist
-            document.querySelectorAll('#sidebar .sidebar-tabs a[role="tab"]').forEach(tab => {
-                tab.addEventListener('click', function (e) {
-                    // Si el tab que se selecciona NO es el de feature-info, entonces cerramos el feature-info
-                    const href = (this.getAttribute('href') || '').trim();
-                    if (href !== '#feature-info') {
-                        closeFeatureInfo();
-                    }
-                });
-            });
-
-            // También cerramos feature-info cuando se pulse el botón de cierre de cualquier panel
-            document.querySelectorAll('#sidebar .sidebar-pane .sidebar-close').forEach(btn => {
-                btn.addEventListener('click', closeFeatureInfo);
-            });
-
-            /* Opcional: cerrar feature-info si el usuario abre por código otro panel (si usas sidebarControl.show)
-               Si estás usando el control de leaflet-sidebar y quieres capturar llamadas a show/hide del control:
-               si sidebarControl existe y tiene evento 'show', puedes hacer:
-               if (sidebarControl && typeof sidebarControl.on === 'function') {
-                   sidebarControl.on('show', function(id) {
-                       // si se abre un panel que no es feature-info, cerramos su contenido
-                       if (id !== 'feature-info') closeFeatureInfo();
-                   });
-               }
-            */
-
-            // función para cerrar completamente la sidebar y limpiar el panel feature-info
-            function closeSidebarCompletely() {
-                const sb = document.getElementById('sidebar');
-                if (sb) {
-                    sb.classList.add('collapsed');
-                    sb.setAttribute('aria-hidden', 'true');
-                }
-
-                // quitar active de     cualquier pane
-                document.querySelectorAll('#sidebar .sidebar-pane').forEach(p => {
-                    p.classList.remove('active');
-                    p.setAttribute('aria-hidden', 'true');
-                });
-
-                // limpiar feature-info (si existe)
-                try { closeFeatureInfo(); } catch (e) { /* noop */ }
-
-                // si se usa el control de leaflet-sidebar, pedirle que oculte (mantener estado consistente)
-                if (typeof sidebarControl !== 'undefined' && sidebarControl && typeof sidebarControl.hide === 'function') {
-                    try { sidebarControl.hide(); } catch (e) { /* noop */ }
-                }
-
-                // cerrar cualquier popup del mapa
-                try { if (map && typeof map.closePopup === 'function') map.closePopup(); } catch (e) { /* noop */ }
-
-                // limpiar selección fijada
-                clearSelectedLayer();
-            }
-
-            // Conectar el botón del tablist (si ya existe)
-            const sidebarCloseTab = document.getElementById('sidebar-close-tab');
-            if (sidebarCloseTab) {
-                sidebarCloseTab.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    closeSidebarCompletely();
-                });
-            } else {
-                // Si aún no has añadido el <li> del botón en el HTML, lo creamos e insertamos en el primer tablist
-                const tablists = document.querySelectorAll('#sidebar .sidebar-tabs ul[role="tablist"]');
-                if (tablists && tablists.length) {
-                    const li = document.createElement('li');
-                    li.innerHTML = '<a href="#" id="sidebar-close-tab" role="button" title="Cerrar sidebar" aria-label="Cerrar sidebar"><i class="fa fa-times" aria-hidden="true"></i></a>';
-                    tablists[0].appendChild(li);
-                    const newBtn = document.getElementById('sidebar-close-tab');
-                    if (newBtn) {
-                        newBtn.addEventListener('click', function (e) {
-                            e.preventDefault();
-                            closeSidebarCompletely();
-                        });
-                    }
-                }
-            }
             // Inicializar Foundation (si jQuery + Foundation están cargados)
             if (window.jQuery && typeof jQuery.fn.foundation === 'function') {
                 jQuery(document).ready(function () {
