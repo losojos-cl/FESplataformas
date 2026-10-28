@@ -643,51 +643,128 @@
                     });
                 }
 
-                // Estilos por valor de ZONA
-                function style_FESplataformas_0_0(feature) {
-                    const zone = String(feature.properties && feature.properties['ZONA']);
-                    const base = {
-                        pane: 'pane_FESplataformas_0',
-                        opacity: 1,
-                        color: 'rgba(35,35,35,1.0)',
-                        dashArray: '',
-                        lineCap: 'butt',
-                        lineJoin: 'miter',
-                        weight: 1.0,
-                        fill: true,
-                        fillOpacity: 1,
-                        interactive: true
-                    };
-                    switch (zone) {
-                        case 'Norte/Centro':
-                            return Object.assign({}, base, { fillColor: 'rgba(51,51,51,1.0)' });
-                        case 'Sur/Norte':
-                            return Object.assign({}, base, { fillColor: 'rgba(102,102,102,1.0)' });
-                        case 'Sur/Sur':
-                            return Object.assign({}, base, { fillColor: 'rgba(153,153,153,1.0)' });
-                        default:
-                            return base;
+                // Contar centrales de un feature
+                function countCentrales(props) {
+                    let n = 0;
+                    for (let i = 1; i <= 7; i++) {
+                        if (props['CENTRAL' + i]) n++;
                     }
+                    return n;
                 }
 
-                const layer_FESplataformas_0 = L.geoJson(json_FESplataformas_0, {
+                // Interpolar color base hacia blanco (más claro) o negro (más oscuro)
+                // intensity: 0 = más claro (hacia blanco), 1 = color base, >1 = más oscuro (hacia negro)
+                function getChoroplethColor(rgbaColor, intensity) {
+                    const match = rgbaColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+                    if (!match) return rgbaColor;
+                    const r = parseInt(match[1]);
+                    const g = parseInt(match[2]);
+                    const b = parseInt(match[3]);
+
+                    // 0-1: interpolar hacia blanco (más claro que el base)
+                    // 1: color base exacto
+                    // >1: interpolar hacia negro (más oscuro)
+                    let newR, newG, newB;
+                    if (intensity <= 1) {
+                        // Hacia blanco: color + (255 - color) * (1 - intensity)
+                        const inv = 1 - intensity;
+                        newR = Math.round(r + (255 - r) * inv);
+                        newG = Math.round(g + (255 - g) * inv);
+                        newB = Math.round(b + (255 - b) * inv);
+                    } else {
+                        // Hacia negro: color * (2 - intensity) para intensity en [1, 2]
+                        const factor = Math.max(0, 2 - intensity);
+                        newR = Math.round(r * factor);
+                        newG = Math.round(g * factor);
+                        newB = Math.round(b * factor);
+                    }
+                    return `rgba(${newR},${newG},${newB},1)`;
+                }
+
+                // Estilo por zona con escala de color según nº centrales
+                function createZoneStyleChoropleth(zoneColor) {
+                    return function(feature) {
+                        const props = feature.properties || {};
+                        const centrales = countCentrales(props);
+                        // Mapear 0-7 a intensidad: 0=0.15 (muy claro), 3.5=1 (base), 7=1.7 (oscuro)
+                        const intensity = 0.15 + (centrales / 7) * 1.55;
+                        const fillColor = getChoroplethColor(zoneColor, intensity);
+
+                        const base = {
+                            pane: 'pane_FESplataformas_0',
+                            opacity: 1,
+                            color: 'rgba(35,35,35,1.0)',
+                            dashArray: '',
+                            lineCap: 'butt',
+                            lineJoin: 'miter',
+                            weight: 1.0,
+                            fill: true,
+                            fillOpacity: 1,
+                            interactive: true,
+                            fillColor: fillColor
+                        };
+                        return base;
+                    };
+                }
+
+                // Crear 3 capas separadas por zona
+                const layer_NorteCentro = L.geoJson(json_FESplataformas_0, {
                     attribution: '',
                     interactive: true,
                     dataVar: 'json_FESplataformas_0',
-                    layerName: 'layer_FESplataformas_0',
+                    layerName: 'layer_NorteCentro',
                     pane: 'pane_FESplataformas_0',
+                    filter: f => f.properties && f.properties['ZONA'] === 'Norte/Centro',
                     onEachFeature: pop_FESplataformas_0,
-                    style: style_FESplataformas_0_0
+                    style: createZoneStyleChoropleth('rgba(51,51,51,1.0)')
                 });
 
-                boundsGroup.addLayer(layer_FESplataformas_0);
-                map.addLayer(layer_FESplataformas_0);
+                const layer_SurNorte = L.geoJson(json_FESplataformas_0, {
+                    attribution: '',
+                    interactive: true,
+                    dataVar: 'json_FESplataformas_0',
+                    layerName: 'layer_SurNorte',
+                    pane: 'pane_FESplataformas_0',
+                    filter: f => f.properties && f.properties['ZONA'] === 'Sur/Norte',
+                    onEachFeature: pop_FESplataformas_0,
+                    style: createZoneStyleChoropleth('rgba(102,102,102,1.0)')
+                });
 
-                // Árbol de overlays para el control
+                const layer_SurSur = L.geoJson(json_FESplataformas_0, {
+                    attribution: '',
+                    interactive: true,
+                    dataVar: 'json_FESplataformas_0',
+                    layerName: 'layer_SurSur',
+                    pane: 'pane_FESplataformas_0',
+                    filter: f => f.properties && f.properties['ZONA'] === 'Sur/Sur',
+                    onEachFeature: pop_FESplataformas_0,
+                    style: createZoneStyleChoropleth('rgba(153,153,153,1.0)')
+                });
+
+                // Añadir todas al boundsGroup y al mapa
+                [layer_NorteCentro, layer_SurNorte, layer_SurSur].forEach(layer => {
+                    boundsGroup.addLayer(layer);
+                    map.addLayer(layer);
+                });
+
+                // Árbol de overlays con checkboxes independientes por zona
                 const overlaysTree = [
                     {
-                        label: '<h5>Zonas</h5> <br /><table><tr><td style="text-align: center;"><img src="legend/FESplataformas_0_NorteCentro0.png" /></td><td>Norte/Centro</td></tr><tr><td style="text-align: center;"><img src="legend/FESplataformas_0_SurNorte1.png" /></td><td>Sur/Norte</td></tr><tr><td style="text-align: center;"><img src="legend/FESplataformas_0_SurSur2.png" /></td><td>Sur/Sur</td></tr></table>',
-                        layer: layer_FESplataformas_0
+                        label: '<h5>Zonas</h5>',
+                        children: [
+                            { 
+                                label: '<span style="display:inline-block;width:12px;height:12px;background:rgba(51,51,51,1);border:1px solid #999;margin-right:6px;vertical-align:middle;"></span> Norte/Centro', 
+                                layer: layer_NorteCentro 
+                            },
+                            { 
+                                label: '<span style="display:inline-block;width:12px;height:12px;background:rgba(102,102,102,1);border:1px solid #999;margin-right:6px;vertical-align:middle;"></span> Sur/Norte', 
+                                layer: layer_SurNorte 
+                            },
+                            { 
+                                label: '<span style="display:inline-block;width:12px;height:12px;background:rgba(153,153,153,1);border:1px solid #999;margin-right:6px;vertical-align:middle;"></span> Sur/Sur', 
+                                layer: layer_SurSur 
+                            }
+                        ]
                     }
                 ];
 
