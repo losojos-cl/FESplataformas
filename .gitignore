@@ -1,1 +1,5 @@
 node_modules/
+
+# Originales de diseño: no van al repo ni a GitHub Pages (solo assets/web/ es versionable)
+/assets/*
+!/assets/web/
