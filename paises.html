@@ -6,82 +6,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FESplataformas - América Latina</title>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-
-    <!-- Foundation CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/css/foundation.min.css"
-        crossorigin="anonymous" />
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
-
-    <link rel="stylesheet" href="style.css">
+    <!-- Tipografía del sistema de diseño -->
+    <link rel="preload" href="webfonts/Ebert-Regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="webfonts/Ebert-Bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="css/theme.css">
 </head>
 
-<body>
-    <header class="margin-bottom-2">
-        <div class="grid-container" data-equalizer>
-            <div class="grid-x">
-                <div class="cell medium-5" data-equalizer-watch>
-                    <h1 class="h2">FESplataformas</h1>
-                    <!-- <p class="subheader">Sindicatos tradicionales y trabajadores de plataformas en América Latina</p> -->
-                </div>
-                <div class="cell medium-3 medium-offset-2 align-middle" data-equalizer-watch>
-                    <div class="callout primary text-center callout-total-countries">
-                        <!-- <h5><i class="fas fa-chart-line"></i> Repositorio</h5> -->
-                        <p id="total-countries">Cargando datos...</p>
-                    </div>
-                </div>
-                <div class="cell medium-2 align-">
-                    <a class="button large equalizer-watch" href="index_flotante.html">mapa</a>
-                </div>
-            </div>
+<body class="fes-page">
+    <div class="fes-fondo" aria-hidden="true"></div>
+
+    <nav class="fes-topbar" aria-label="Barra superior">
+        <a class="fes-tab" href="index.html" title="Volver al mapa" aria-label="Volver al mapa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </a>
+        <span class="fes-topbar-brand">FESplataformas · repositorio</span>
+        <div class="fes-acciones">
+            <span class="fes-chip" id="total-countries">Cargando datos...</span>
+            <a class="fes-btn" href="index.html" title="Ir al mapa interactivo">mapa</a>
         </div>
-    </header>
+    </nav>
 
-    <div id="paises-header">
-        <div class="grid-container">
-            <div class="grid-x">
-                <div class="small-12 cell">
-                    <p class="lead">El estudio cubrió <b>tres subregiones</b>, cada una con particularidades en su <b>estructura sindical, legislación laboral y grado de desarrollo</b> del trabajo en plataformas:</p>
+    <main class="fes-main">
 
-                    <ol>
-                        <li><b>Co1 – Centro y Norteamérica</b>: México —donde hay más volumen de información— y experiencias
-                            relevantes en Centroamérica: Guatemala, Honduras, El Salvador, Costa Rica, República
-                            Dominicana y Panamá.
-                        </li>
-                        <li><b>Co2 – Cono Sur-Norte</b>: Colombia, Venezuela, Ecuador, Brasil y Paraguay.</li>
-                        <li><b>Co3 – Cono Sur-Sur</b>: Uruguay, Bolivia, Perú, Argentina y Chile.</li>
-                    </ol>
+        <section class="fes-doc">
+            <p>El estudio cubrió <b>tres subregiones</b>, cada una con particularidades en su <b>estructura sindical, legislación laboral y grado de desarrollo</b> del trabajo en plataformas:</p>
 
-                    <p>En total fueron <b>22 países</b> los investigados, los cuales contaban con un total de <b>92 centrales</b>
-                        sindicales activas.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
+            <ol>
+                <li><b>Co1 – Centro y Norteamérica</b>: México —donde hay más volumen de información— y experiencias
+                    relevantes en Centroamérica: Guatemala, Honduras, El Salvador, Costa Rica, República
+                    Dominicana y Panamá.
+                </li>
+                <li><b>Co2 – Cono Sur-Norte</b>: Colombia, Venezuela, Ecuador, Brasil y Paraguay.</li>
+                <li><b>Co3 – Cono Sur-Sur</b>: Uruguay, Bolivia, Perú, Argentina y Chile.</li>
+            </ol>
 
-    <div class="grid-container">
-        <section class="callout callout-filter margin-bottom-2">
-            <h4><i class="fas fa-filter"></i> Filtros de Búsqueda</h4>
-            <div class="grid-x grid-margin-x">
-                <div class="cell medium-3">
-                    <label for="zone-filter"><i class="fas fa-globe-americas"></i> Zona Geográfica</label>
-                    <select id="zone-filter" class="filter-select">
+            <p>En total fueron <b>22 países</b> los investigados, los cuales contaban con un total de <b>92 centrales</b>
+                sindicales activas.
+            </p>
+        </section>
+
+        <section class="fes-doc">
+            <h3 class="fes-section-title" style="margin-top:0">Filtros de búsqueda</h3>
+            <div class="fes-filter-grid">
+                <div class="fes-field">
+                    <label for="zone-filter">Zona geográfica</label>
+                    <select id="zone-filter" class="fes-select">
                         <option value="all">Todas las zonas</option>
                     </select>
                 </div>
-                <div class="cell medium-3">
-                    <label for="central-filter"><i class="fas fa-users"></i> Centrales por país</label>
-                    <select id="central-filter" class="filter-select">
+                <div class="fes-field">
+                    <label for="central-filter">Centrales por país</label>
+                    <select id="central-filter" class="fes-select">
                         <option value="all">Cualquier número de centrales</option>
                         <option value="1">1 central</option>
                         <option value="2">2 centrales</option>
@@ -89,9 +64,9 @@
                         <option value="4">4 o más centrales</option>
                     </select>
                 </div>
-                <div class="cell medium-3">
-                    <label for="legislacion-filter"><i class="fas fa-gavel"></i> Legislación por país</label>
-                    <select id="legislacion-filter" class="filter-select">
+                <div class="fes-field">
+                    <label for="legislacion-filter">Legislación por país</label>
+                    <select id="legislacion-filter" class="fes-select">
                         <option value="all">Cualquier cantidad</option>
                         <option value="0">Sin legislación</option>
                         <option value="1">1 ley</option>
@@ -99,9 +74,9 @@
                         <option value="3">3 o más leyes</option>
                     </select>
                 </div>
-                <div class="cell medium-3">
-                    <label for="sort-filter"><i class="fas fa-sort-amount-down"></i> Ordenar por</label>
-                    <select id="sort-filter" class="filter-select">
+                <div class="fes-field">
+                    <label for="sort-filter">Ordenar por</label>
+                    <select id="sort-filter" class="fes-select">
                         <option value="name-asc" selected>Nombre (A-Z)</option>
                         <option value="name-desc">Nombre (Z-A)</option>
                         <option value="centrales-desc">Más centrales primero</option>
@@ -111,50 +86,36 @@
                     </select>
                 </div>
             </div>
-            <div class="grid-x grid-margin-x margin-top-1">
-                <div class="cell text-right">
-                    <button id="reset-filters" class="button secondary">
-                        <i class="fas fa-redo"></i> Restablecer filtros
-                    </button>
-                </div>
+            <div style="text-align:right; margin-top:14px">
+                <button id="reset-filters" class="fes-btn violeta" type="button">Restablecer filtros</button>
             </div>
         </section>
 
         <section>
-            <h2 class="hide">Países <span id="results-count"></span></h2>
-            <div class="grid-x grid-margin-x" id="countries-container">
-                <!-- Las tarjetas de países se generarán con JavaScript -->
+            <h2 class="visually-hidden">Países <span id="results-count"></span></h2>
+            <div class="pais-grid" id="countries-container">
+                <div class="fes-skeleton alto-32"></div>
+                <div class="fes-skeleton alto-32"></div>
+                <div class="fes-skeleton alto-32"></div>
+                <div class="fes-skeleton alto-32"></div>
+                <div class="fes-skeleton alto-32"></div>
+                <div class="fes-skeleton alto-32"></div>
             </div>
         </section>
 
-        <!-- <section class="callout margin-bottom-2">
-            <h4>Estadísticas</h4>
-            <div class="grid-x grid-margin-x" id="zone-stats">
-                 Las estadísticas por zona se generarán con JavaScript 
-            </div>
-        </section> -->
-    </div>
+    </main>
 
-    <footer class="margin-top-3">
-        <div class="grid-container">
-            <h6>Plataforma de información sindical &copy; <span id="current-year"></span></h6>
-            <!-- <p class="small">Datos geoespaciales de centrales sindicales en América Latina y el Caribe</p> -->
-        </div>
+    <footer class="fes-footer">
+        <p>Plataforma de información sindical &copy; <span id="current-year"></span></p>
     </footer>
 
-    <!-- Foundation JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/js/foundation.min.js"
-        crossorigin="anonymous"></script>
-
     <script>
-        // Inicializar Foundation
-        $(document).foundation();
+        'use strict';
 
-        // Cargar los datos del archivo externo
+        // ---------- Lógica de datos y filtros (inalterada) ----------
         let countriesData = [];
         let zones = new Set();
 
-        // Cargar datos desde archivos separados
         let legislacionData = {};
         Promise.all([
             fetch('./data/paises-geo.json').then(r => r.json()),
@@ -176,20 +137,17 @@
                 showError(`Error al cargar datos: ${error.message}`);
             });
 
-        // Función para mostrar errores en la página
         function showError(message) {
             document.getElementById('countries-container').innerHTML = `
-                <div class="cell">
-                    <div class="callout alert text-center">
-                        <h4><i class="fas fa-exclamation-triangle"></i> Error al cargar datos</h4>
-                        <p>${message}</p>
-                        <p class="small">
-                            <strong>Solución alternativa:</strong><br>
-                            1. Verifica que los archivos data/paises-geo.json y data/paises-props.json existan<br>
-                            2. Asegúrate de que ambos sean JSON válidos (sin errores de sintaxis)<br>
-                            3. Comprueba que los nombres de país coincidan en ambos archivos
-                        </p>
-                    </div>
+                <div class="fes-error" style="grid-column: 1 / -1;">
+                    <p><strong>Error al cargar datos</strong></p>
+                    <p><small>${message}</small></p>
+                    <p class="small">
+                        <strong>Solución alternativa:</strong><br>
+                        1. Verifica que los archivos data/paises-geo.json y data/paises-props.json existan<br>
+                        2. Asegúrate de que ambos sean JSON válidos (sin errores de sintaxis)<br>
+                        3. Comprueba que los nombres de país coincidan en ambos archivos
+                    </p>
                 </div>
             `;
             document.getElementById('total-countries').innerHTML = `<strong>Error</strong>`;
@@ -200,33 +158,19 @@
                 const props = feature.properties;
                 const countryName = props.COUNTRY || '';
 
-                // Contar centrales no nulas
                 const centralesCount = [
-                    props.CENTRAL1,
-                    props.CENTRAL2,
-                    props.CENTRAL3,
-                    props.CENTRAL4,
-                    props.CENTRAL5,
-                    props.CENTRAL6,
-                    props.CENTRAL7
+                    props.CENTRAL1, props.CENTRAL2, props.CENTRAL3, props.CENTRAL4,
+                    props.CENTRAL5, props.CENTRAL6, props.CENTRAL7
                 ].filter(central => central && central.trim() !== '').length;
 
-                // Obtener lista de centrales
                 const centralesList = [
-                    props.CENTRAL1,
-                    props.CENTRAL2,
-                    props.CENTRAL3,
-                    props.CENTRAL4,
-                    props.CENTRAL5,
-                    props.CENTRAL6,
-                    props.CENTRAL7
+                    props.CENTRAL1, props.CENTRAL2, props.CENTRAL3, props.CENTRAL4,
+                    props.CENTRAL5, props.CENTRAL6, props.CENTRAL7
                 ].filter(central => central && central.trim() !== '');
 
-                // Contar legislaciones
                 const countryLegis = legislacionData[countryName];
                 const legislacionCount = countryLegis ? countryLegis.length : 0;
 
-                // Añadir zona al conjunto de zonas únicas
                 if (props.ZONA) {
                     zones.add(props.ZONA);
                 }
@@ -249,22 +193,16 @@
                 return countryData;
             });
 
-            // Ordenar los países alfabéticamente al cargar (A-Z)
             countriesData.sort((a, b) => a.name.localeCompare(b.name));
         }
 
         function initializePage() {
-
-            // Establecer el año actual en el footer
             document.getElementById('current-year').textContent = new Date().getFullYear();
 
-            // Actualizar contador total de países
             document.getElementById('total-countries').innerHTML = `
                 <strong>${countriesData.length}</strong> países archivados
-                
             `;
 
-            // Llenar opciones de filtro de zona
             const zoneFilter = document.getElementById('zone-filter');
             zones.forEach(zone => {
                 const option = document.createElement('option');
@@ -273,62 +211,13 @@
                 zoneFilter.appendChild(option);
             });
 
-            // Generar estadísticas por zona
-            // generateZoneStats();
-
-            // Mostrar todos los países inicialmente ordenados alfabéticamente
             renderCountries(countriesData);
 
-            // Añadir event listeners a los filtros
             document.getElementById('zone-filter').addEventListener('change', applyFilters);
             document.getElementById('central-filter').addEventListener('change', applyFilters);
             document.getElementById('legislacion-filter').addEventListener('change', applyFilters);
             document.getElementById('sort-filter').addEventListener('change', applyFilters);
             document.getElementById('reset-filters').addEventListener('click', resetFilters);
-
-        }
-
-        function generateZoneStats() {
-            const zoneStatsContainer = document.getElementById('zone-stats');
-            const statsByZone = {};
-
-            // Calcular estadísticas por zona
-            countriesData.forEach(country => {
-                if (!statsByZone[country.zone]) {
-                    statsByZone[country.zone] = {
-                        count: 0,
-                        totalCentrales: 0,
-                        totalLegislacion: 0
-                    };
-                }
-
-                statsByZone[country.zone].count++;
-                statsByZone[country.zone].totalCentrales += country.centralesCount;
-                statsByZone[country.zone].totalLegislacion += country.legislacionCount;
-            });
-
-            // Generar HTML de estadísticas
-            let statsHTML = '';
-            Object.keys(statsByZone).forEach(zone => {
-                const avgCentrales = (statsByZone[zone].totalCentrales / statsByZone[zone].count).toFixed(1);
-                const avgLegislacion = (statsByZone[zone].totalLegislacion / statsByZone[zone].count).toFixed(1);
-
-                statsHTML += `
-                    <div class="cell medium-4">
-                        <div class="callout text-center">
-                            <h3 class="stat-value">${statsByZone[zone].count}</h3>
-                            <p class="stat-label">Países en</p>
-                            <p class="stat-zone"><strong>${zone}</strong></p>
-                            <p class="small">
-                                <i class="fas fa-users"></i> ${avgCentrales} centrales/promedio<br>
-                                <i class="fas fa-gavel"></i> ${avgLegislacion} leyes/promedio
-                            </p>
-                        </div>
-                    </div>
-                `;
-            });
-
-            zoneStatsContainer.innerHTML = statsHTML;
         }
 
         function applyFilters() {
@@ -337,35 +226,25 @@
             const selectedLegislacionFilter = document.getElementById('legislacion-filter').value;
             const sortOption = document.getElementById('sort-filter').value;
 
-            // Filtrar países
             let filteredCountries = countriesData.filter(country => {
-                // Filtrar por zona
                 if (selectedZone !== 'all' && country.zone !== selectedZone) {
                     return false;
                 }
 
-                // Filtrar por número de centrales
                 if (selectedCentralFilter !== 'all') {
                     const centralFilterValue = parseInt(selectedCentralFilter);
-
                     if (centralFilterValue === 4) {
-                        // 4 o más centrales
                         if (country.centralesCount < 4) return false;
                     } else {
-                        // Número exacto de centrales
                         if (country.centralesCount !== centralFilterValue) return false;
                     }
                 }
 
-                // Filtrar por cantidad de legislación
                 if (selectedLegislacionFilter !== 'all') {
                     const legisFilterValue = parseInt(selectedLegislacionFilter);
-
                     if (legisFilterValue === 3) {
-                        // 3 o más leyes
                         if (country.legislacionCount < 3) return false;
                     } else {
-                        // Número exacto de leyes
                         if (country.legislacionCount !== legisFilterValue) return false;
                     }
                 }
@@ -373,7 +252,6 @@
                 return true;
             });
 
-            // Ordenar países según la opción seleccionada
             filteredCountries.sort((a, b) => {
                 switch (sortOption) {
                     case 'name-asc':
@@ -389,11 +267,10 @@
                     case 'legislacion-asc':
                         return a.legislacionCount - b.legislacionCount;
                     default:
-                        return a.name.localeCompare(b.name); // Orden alfabético por defecto
+                        return a.name.localeCompare(b.name);
                 }
             });
 
-            // Mostrar resultados
             renderCountries(filteredCountries);
         }
 
@@ -401,82 +278,50 @@
             const container = document.getElementById('countries-container');
             const resultsCount = document.getElementById('results-count');
 
-            // Actualizar contador de resultados
             if (countries.length === 0) {
-                resultsCount.innerHTML = '<span style="color: #666; font-weight: normal;">(0 países)</span>';
+                resultsCount.textContent = '(0 países)';
                 container.innerHTML = `
-                    <div class="cell">
-                        <div class="callout warning text-center callout-no-paises">
-                            <h4><i class="fas fa-search"></i> No se encontraron países</h4>
-                            <p>Intenta ajustar los filtros de búsqueda.</p>
-                        </div>
+                    <div class="fes-vacio" style="grid-column: 1 / -1;">
+                        <p><strong>No se encontraron países</strong></p>
+                        <p><small>Intenta ajustar los filtros de búsqueda.</small></p>
                     </div>
                 `;
                 return;
             }
 
-            resultsCount.innerHTML = `<span style="color: #666; font-weight: normal;">(${countries.length} países)</span>`;
+            resultsCount.textContent = `(${countries.length} países)`;
 
-            // Generar tarjetas de países
             let countriesHTML = '';
-
             countries.forEach(country => {
-                // Generar lista de centrales
                 let centralesHTML = '';
                 country.centralesList.forEach((central, index) => {
                     if (index < 3) {
                         centralesHTML += `<li>${central}</li>`;
                     }
                 });
-
-                // Si hay más de 3 centrales, añadir indicador
                 if (country.centralesList.length > 3) {
-                    centralesHTML += `<li class="small viewer-centrales-mas"><em>+${country.centralesList.length - 3} más</em></li>`;
+                    centralesHTML += `<li class="pais-mas">+${country.centralesList.length - 3} más</li>`;
                 }
-
-                // Si no hay centrales
                 if (country.centralesList.length === 0) {
-                    centralesHTML = '<li class="small"><em>No se registran centrales</em></li>';
+                    centralesHTML = '<li class="pais-mas">No se registran centrales</li>';
                 }
 
                 countriesHTML += `
-                    <div class="cell medium-6 large-4">
-                        <div class="card card-paises"  data-equalizer="pais">
-                            <div class="card-divider card-paises-header">
-                                <div class="grid-x align-middle" style="width: 100%;">
-                                    <div class="cell small-8">
-                                <h5 class="paises-name">${country.name}</h5>
-                                </div>
-                                <div class="cell small-4">
-                                <span class="label float-right pais-zone">${country.zone}</span>
-                                </div>
-                                </div>
-                                
-                            </div>
-                            <div class="card-section card-paises-content">
-                                <p class="card-centrales-nro">
-                                    <i class="fas fa-users"></i>
-                                    <strong>${country.centralesCount}</strong> central(es) sindical(es)
-                                </p>
-                                
-                                <ul class="no-bullet paises-centrales">
-                                    ${centralesHTML}
-                                </ul>
-                                <hr/>
-                                <p class="card-centrales-nro">
-                                    <i class="fas fa-gavel"></i>
-                                    <strong>${country.legislacionCount}</strong> ley(es) registrada(s)
-                                </p>
-                            </div>
-                            <div class="card-section card-paises-footer card-section-footer">
-                                <div class="button-group ">
-                                    <a href="viewer.html?country=${country.id}" class="button">
-                                        <i class="fas fa-external-link-alt"></i> Más sobre ${country.name}
-                                    </a>
-                                </div>
-                            </div>
+                    <article class="pais-card">
+                        <header>
+                            <h3 class="pais-nombre">${country.name}</h3>
+                            <span class="fes-badge">${country.zone}</span>
+                        </header>
+                        <div class="pais-body">
+                            <p><span class="fes-nro">${country.centralesCount}</span> central(es) sindical(es)</p>
+                            <ul>${centralesHTML}</ul>
+                            <hr class="fes-divider">
+                            <p><span class="fes-nro">${country.legislacionCount}</span> ley(es) registrada(s)</p>
                         </div>
-                    </div>
+                        <footer>
+                            <a href="viewer.html?country=${country.id}" class="fes-btn" title="Ver ficha completa de ${country.name}">más sobre ${country.name}</a>
+                        </footer>
+                    </article>
                 `;
             });
 
@@ -487,7 +332,7 @@
             document.getElementById('zone-filter').value = 'all';
             document.getElementById('central-filter').value = 'all';
             document.getElementById('legislacion-filter').value = 'all';
-            document.getElementById('sort-filter').value = 'name-asc'; // Restablecer a orden alfabético A-Z
+            document.getElementById('sort-filter').value = 'name-asc';
             applyFilters();
         }
     </script>
