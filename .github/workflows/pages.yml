@@ -1,0 +1,51 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar artifact estático
+        run: |
+          mkdir -p _site
+          # Todo el repo es el sitio, salvo historiales y dependencias:
+          # - qgis2web/webarchive: viejas exportaciones qgis2web (~71 MB, no referenciadas)
+          # - node_modules / .github: tooling, no contenido
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='qgis2web/webarchive' \
+            --exclude='_site' \
+            ./ _site/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
