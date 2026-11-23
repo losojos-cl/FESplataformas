@@ -295,15 +295,20 @@
                 panelAbierto = true;
                 ultimoPane = id;
                 setTabsSelected(id);
-                titleEl.textContent = PANE_TITLES[id] || 'Información';
+                // País con selección activa: el header muestra el nombre del país (mockup "BRASIL")
+                const nombreHeader = (id === 'pais' && selectedCountryName)
+                    ? selectedCountryName
+                    : (PANE_TITLES[id] || 'Información');
+                titleEl.textContent = nombreHeader;
 
                 // El tab de país solo existe mientras hay una selección
                 if (id === 'pais') tabPais.hidden = false;
 
-                // Al cambiar a un panel que no es país, se limpia la selección fijada
-                if (id !== 'pais') clearSelectedCountry();
+                // (La selección NO se limpia al cambiar de tab: "amarillo persistente".
+                //  Se limpia solo al cerrar el panel — closePanel/Escape — o al
+                //  seleccionar otro país.)
 
-                liveEl.textContent = 'Panel abierto: ' + (PANE_TITLES[id] || id);
+                liveEl.textContent = 'Panel abierto: ' + nombreHeader;
 
                 // Foco: cabecera del panel si la apertura viene de teclado/rail
                 if (opts.returnFocusTo && opts.returnFocusTo.isConnected) {
@@ -443,6 +448,7 @@
 
             /* ---------- Estado de selección / hover (por clases CSS, no setStyle) ---------- */
             let selectedLayer = null;
+            let selectedCountryName = null;   // para que openPane('pais') conserve el título
             const layersByCountry = {}; // slug -> layer
 
             function setSelected(layer) {
@@ -458,6 +464,7 @@
             function clearSelectedCountry() {
                 if (selectedLayer && selectedLayer._path) selectedLayer._path.classList.remove('fes-selected');
                 selectedLayer = null;
+                selectedCountryName = null;
                 tabPais.hidden = true;
                 tabPais.title = 'Ficha del país seleccionado';
                 tabPais.setAttribute('aria-label', 'Ficha del país seleccionado');
@@ -577,12 +584,10 @@
                 if (opts.push) setURLParam(slugify(feature.properties.COUNTRY));
                 document.querySelectorAll('.fes-hover').forEach(el => el.classList.remove('fes-hover'));
                 setSelected(layer);
+                const nombre = feature.properties.COUNTRY || 'País';
+                selectedCountryName = nombre;
                 renderPaisPanel(feature);
                 openPane('pais', { returnFocusTo: layer._path });
-                // El header del panel muestra el país (mockup: "BRASIL"), no "País"
-                const nombre = feature.properties.COUNTRY || 'País';
-                titleEl.textContent = nombre;
-                liveEl.textContent = 'Panel abierto: ' + nombre;
                 tabPais.title = 'Ficha de ' + nombre;
                 tabPais.setAttribute('aria-label', 'Ficha de ' + nombre);
                 if (opts.fit && layer.getBounds) {
