@@ -81,9 +81,15 @@ html, body {
     color: var(--texto);
 }
 body {
-    background: var(--fondo-mapa) url('../assets/web/composicion-violeta.webp') center / cover no-repeat;
+    background: var(--fondo-mapa);
 }
-#map { position: absolute; inset: 0; background: transparent; }
+/* Composición violeta: capa propia limitada a 70vw (spec: no estirar el KV a todo el viewport) */
+.fes-fondo {
+    position: fixed; top: 0; bottom: 0; right: 0; z-index: -1;
+    width: min(70vw, calc(100vw - var(--rail-ancho)));
+    background: url('../assets/web/composicion-violeta.webp') center / cover no-repeat;
+}
+#map { position: absolute; inset: 0 0 0 var(--rail-ancho); background: transparent; }
 .leaflet-container { background: transparent; font-family: var(--fuente); }
 
 .visually-hidden {
@@ -100,6 +106,7 @@ body {
     background: var(--barra);
 }
 .fes-rail .spacer { flex: 1; }
+.fes-tablist { display: contents; }
 .fes-tab {
     width: 44px; height: 44px;                 /* touch target ≥ 44 px */
     display: inline-flex; align-items: center; justify-content: center;
@@ -168,8 +175,25 @@ body {
 }
 .fes-divider { border: 0; border-top: 1px solid var(--divisor); margin: 14px 0; }
 
-/* Destacado del pane Plataformas (mismo texto, jerarquía nueva) */
-#pane-home p:first-of-type { font-size: var(--fs-titulo); font-weight: 700; color: var(--encabezado); }
+/* Titulares del pane Plataformas (spec: "Título destacado · Ebert Bold · 17 px") */
+.fes-titular {
+    font-family: var(--fuente);
+    font-size: var(--fs-titulo);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--texto);
+    margin: 0 0 .5em;
+}
+.fes-subtitular {
+    font-style: italic;
+    font-size: var(--fs-cuerpo);
+    line-height: var(--lh-cuerpo);
+    color: var(--texto);
+    opacity: .85;
+    margin: 0 0 1.1em;
+}
+/* Variante sobre violeta (si se usa a sangre, como el frame Inicio del mockup) */
+.fes-titular.sobre-violeta { color: var(--acento); font-family: var(--fuente-titulo); }
 
 /* ---------- Badges ---------- */
 .fes-badge {
@@ -266,32 +290,40 @@ body {
 .fes-leg-estado::before { content: "◆"; font-size: 9px; margin-right: 6px; }
 
 /* ---------- Mapa: estados de países (spec 03) ---------- */
-#pane-pais .pais-features-hint { color: var(--texto); }
-.pais-features path.leaflet-interactive {
-    fill: var(--pais);
-    stroke-width: 1.4;
+/* Las clases van sobre el propio <path> (className de Leaflet) */
+#map path.pais {
     transition: fill var(--trans), stroke var(--trans), stroke-width var(--trans), filter var(--trans);
 }
-.pais-features path.zona-nc { stroke: var(--trazo-nc); }
-.pais-features path.zona-sn { stroke: var(--trazo-sn); }
-.pais-features path.zona-ss { stroke: var(--trazo-ss); }
 
-/* Hover: acento + engrose de contorno + sombra */
-.pais-features path.fes-hover {
-    fill: var(--acento); stroke-width: 2.4;
+/* Hover: acento + engrose de contorno + sombra ( !important porque
+   Leaflet pinta fill/stroke como atributos inline en el path SVG ) */
+#map path.pais.fes-hover {
+    fill: var(--acento) !important;
+    stroke-width: 2.4 !important;
     filter: drop-shadow(0 1px 3px rgba(21, 10, 34, .5));
 }
 /* Selección: amarillo persistente + contorno fuerte (spec: "amarillo persistente") */
-.pais-features path.fes-selected {
-    fill: var(--acento); stroke: var(--encabezado); stroke-width: 2.8;
+#map path.pais.fes-selected {
+    fill: var(--acento) !important;
+    stroke: var(--encabezado) !important;
+    stroke-width: 2.8 !important;
     filter: drop-shadow(0 1px 4px rgba(21, 10, 34, .55));
 }
 /* Foco de teclado sobre el path */
-.pais-features path:focus-visible {
+#map path.pais:focus-visible {
     outline: none;
-    stroke: var(--panel); stroke-width: 3.2;
+    stroke: var(--panel) !important;
+    stroke-width: 3.2 !important;
     filter: drop-shadow(0 0 3px var(--barra));
 }
+
+/* Centrales sin reseña registrada: ítem plano del panel de país */
+.fes-accordion .fes-item-plain {
+    display: flex; align-items: center; min-height: 44px;
+    padding: 10px 2px; border-bottom: 1px solid var(--divisor);
+    font-size: var(--fs-etiqueta); font-weight: 700; color: var(--texto);
+}
+.fes-accordion .fes-item-plain:last-child { border-bottom: 0; }
 
 /* ---------- Leyenda del control de capas (swatches CSS, sin PNG) ---------- */
 .lg-swatch {
@@ -313,6 +345,12 @@ body {
 .leaflet-bar a:hover { background: var(--superficie); color: var(--barra); }
 .leaflet-touch .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; }
 .leaflet-control-layers { background: var(--panel); }
+.leaflet-control-layers-toggle {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23562C78' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z'/%3E%3Cpath d='m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65'/%3E%3Cpath d='m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65'/%3E%3C/svg%3E") !important;
+    background-size: 22px 22px;
+    background-position: center;
+    width: 44px; height: 44px;
+}
 .leaflet-control-attribution {
     background: rgba(59, 30, 81, .72); color: #EFE7F6;
     border-radius: 8px 0 0 0; font-size: 10px;
@@ -346,5 +384,5 @@ body {
         animation-duration: .001s !important;
         transition-duration: .001s !important;
     }
-    .pais-features path.leaflet-interactive { transition: none; }
+    #map path.pais { transition: none; }
 }
