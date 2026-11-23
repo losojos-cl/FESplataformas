@@ -87,10 +87,10 @@ html, body {
 body {
     background: var(--fondo-mapa);
 }
-/* Composición violeta: capa propia limitada a 70vw (spec: no estirar el KV a todo el viewport) */
+/* Composición violeta: capa propia ≤70vw, centrada (spec KV: no estirar a todo el viewport) */
 .fes-fondo {
-    position: fixed; top: 0; bottom: 0; right: 0; z-index: -1;
-    width: min(70vw, calc(100vw - var(--rail-ancho)));
+    position: fixed; top: 0; bottom: 0; z-index: -1;
+    left: max(15vw, 24px); right: max(15vw, 24px);
     background: url('../assets/web/composicion-violeta.webp') center / cover no-repeat;
 }
 #map { position: absolute; inset: 0 0 0 var(--rail-ancho); background: transparent; }
@@ -314,20 +314,21 @@ body.panel-abierto .fes-hero { opacity: 0; }
 /* Las clases van sobre el propio <path> (className de Leaflet) */
 #map path.pais {
     transition: fill var(--trans), stroke var(--trans), stroke-width var(--trans), filter var(--trans);
+    stroke-linejoin: round; stroke-linecap: round;   /* evita pinchos en vértices agudos */
 }
 
 /* Hover: acento + engrose de contorno + sombra ( !important porque
    Leaflet pinta fill/stroke como atributos inline en el path SVG ) */
 #map path.pais.fes-hover {
     fill: var(--acento) !important;
-    stroke-width: 2.4 !important;
+    stroke-width: 2.0 !important;
     filter: drop-shadow(0 1px 3px rgba(21, 10, 34, .5));
 }
 /* Selección: amarillo persistente + contorno fuerte (spec: "amarillo persistente") */
 #map path.pais.fes-selected {
     fill: var(--acento) !important;
     stroke: var(--encabezado) !important;
-    stroke-width: 2.8 !important;
+    stroke-width: 2.2 !important;
     filter: drop-shadow(0 1px 4px rgba(21, 10, 34, .55));
 }
 /* Foco de teclado sobre el path */
