@@ -149,7 +149,10 @@ body {
     background: var(--encabezado); color: var(--panel);
     font-size: var(--fs-cabecera-panel); font-weight: 700;
 }
-.fes-panel-header h1 { margin: 0; font-size: inherit; font-weight: 700; line-height: 1.2; }
+.fes-panel-header h1 {
+    margin: 0; font-size: inherit; font-weight: 700; line-height: 1.2;
+    text-transform: uppercase; letter-spacing: .02em;   /* mockups: PLATAFORMAS / EQUIPO / BRASIL */
+}
 .fes-panel-close {
     width: 36px; height: 36px; flex: 0 0 auto;
     display: inline-flex; align-items: center; justify-content: center;
@@ -194,6 +197,17 @@ body {
 }
 /* Variante sobre violeta (si se usa a sangre, como el frame Inicio del mockup) */
 .fes-titular.sobre-violeta { color: var(--acento); font-family: var(--fuente-titulo); }
+
+/* ---------- Portada "Inicio" sobre el fondo del mapa ---------- */
+.fes-hero {
+    position: fixed; left: calc(var(--rail-ancho) + 24px); top: 36px; z-index: 1000;
+    width: min(420px, 34vw);
+    pointer-events: none;                    /* no bloquea clicks/hover del mapa */
+    transition: opacity var(--trans);
+}
+.fes-hero .fes-titular.sobre-violeta { font-size: 28px; line-height: 1.18; margin: 0 0 .4em; }
+.fes-hero .fes-subtitular.sobre-violeta { color: #EFE7F6; margin: 0; }
+body.panel-abierto .fes-hero { opacity: 0; }
 
 /* ---------- Badges ---------- */
 .fes-badge {

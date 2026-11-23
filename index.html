@@ -24,6 +24,14 @@
 
     <div class="fes-fondo" aria-hidden="true"></div>
 
+    <!-- Portada (frame "Inicio" del mockup): titular sobre el fondo del mapa.
+         Duplicado decorativo del pane Plataformas; la copia canónica para
+         lectores de pantalla vive en el panel. -->
+    <div class="fes-hero" aria-hidden="true">
+        <p class="fes-titular sobre-violeta">Sindicatos tradicionales y trabajadores de plataformas en América Latina:</p>
+        <p class="fes-subtitular sobre-violeta">Estrategias, repertorios y oportunidades para la representación</p>
+    </div>
+
     <!-- ================= Rail de secciones (spec 03: barra lateral) ================= -->
     <nav class="fes-rail" aria-label="Secciones del sitio">
         <div role="tablist" aria-orientation="vertical" aria-label="Paneles de información" class="fes-tablist">
@@ -283,6 +291,7 @@
 
                 panelEl.classList.add('abierto');
                 panelEl.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('panel-abierto');   // oculta la portada
                 panelAbierto = true;
                 ultimoPane = id;
                 setTabsSelected(id);
@@ -308,6 +317,7 @@
             function closePanel() {
                 panelEl.classList.remove('abierto');
                 panelEl.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('panel-abierto'); // revive la portada
                 document.querySelectorAll('.fes-pane').forEach(p => {
                     p.classList.remove('active');
                     p.setAttribute('aria-hidden', 'true');
@@ -449,6 +459,8 @@
                 if (selectedLayer && selectedLayer._path) selectedLayer._path.classList.remove('fes-selected');
                 selectedLayer = null;
                 tabPais.hidden = true;
+                tabPais.title = 'Ficha del país seleccionado';
+                tabPais.setAttribute('aria-label', 'Ficha del país seleccionado');
                 clearURLParam();
                 // Si el panel visible era el de país, volver a un pane con contenido real
                 if (document.getElementById('pane-pais').classList.contains('active')) {
@@ -567,6 +579,12 @@
                 setSelected(layer);
                 renderPaisPanel(feature);
                 openPane('pais', { returnFocusTo: layer._path });
+                // El header del panel muestra el país (mockup: "BRASIL"), no "País"
+                const nombre = feature.properties.COUNTRY || 'País';
+                titleEl.textContent = nombre;
+                liveEl.textContent = 'Panel abierto: ' + nombre;
+                tabPais.title = 'Ficha de ' + nombre;
+                tabPais.setAttribute('aria-label', 'Ficha de ' + nombre);
                 if (opts.fit && layer.getBounds) {
                     const pad = panelPadding();
                     map.fitBounds(layer.getBounds(), {
