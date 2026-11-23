@@ -350,7 +350,15 @@
             });
 
             document.getElementById('fes-panel-close').addEventListener('click', closePanel);
-            document.getElementById('fes-rail-close').addEventListener('click', closePanel);
+            document.getElementById('fes-rail-close').addEventListener('click', function () {
+                // Si el foco estaba en el propio ✕ (que ahora se oculta),
+                // devolverlo al tab activo del rail
+                if (!focusReturn) {
+                    const tb = tabButtons.find(b => b.dataset.pane === ultimoPane);
+                    if (tb && !tb.hidden) focusReturn = tb;
+                }
+                closePanel();
+            });
 
             /* ---- Créditos / derechos ---- */
             const creditosEl = document.getElementById('creditos');

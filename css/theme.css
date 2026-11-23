@@ -110,6 +110,9 @@ body {
     background: var(--barra);
 }
 .fes-rail .spacer { flex: 1; }
+/* El botón cerrar panel solo existe mientras el panel está abierto */
+#fes-rail-close { visibility: hidden; }
+body.panel-abierto #fes-rail-close { visibility: visible; }
 .fes-tablist { display: contents; }
 .fes-tab {
     width: 44px; height: 44px;                 /* touch target ≥ 44 px */
