@@ -1,0 +1,350 @@
+/* =====================================================================
+   FESplataformas — Sistema de diseño (Fase 1)
+   Tokens extraídos del Figma "Lineamientos gráficos Plataforma FES"
+   Espec 01 paleta · 02 tipografía · 03 estructura/estados · 04 AA
+   ===================================================================== */
+
+/* ---------- Tipografía Ebert (local, swap) ---------- */
+@font-face {
+    font-family: 'Ebert';
+    src: url('../webfonts/Ebert-Regular.woff2') format('woff2'),
+         url('../webfonts/Ebert-Regular.woff') format('woff');
+    font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+    font-family: 'Ebert';
+    src: url('../webfonts/Ebert-Italic.woff2') format('woff2'),
+         url('../webfonts/Ebert-Italic.woff') format('woff');
+    font-weight: 400; font-style: italic; font-display: swap;
+}
+@font-face {
+    font-family: 'Ebert';
+    src: url('../webfonts/Ebert-Bold.woff2') format('woff2'),
+         url('../webfonts/Ebert-Bold.woff') format('woff');
+    font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+    font-family: 'Ebert';
+    src: url('../webfonts/Ebert-BoldItalic.woff2') format('woff2'),
+         url('../webfonts/Ebert-BoldItalic.woff') format('woff');
+    font-weight: 700; font-style: italic; font-display: swap;
+}
+@font-face {
+    font-family: 'Ebert Headline';
+    src: url('../webfonts/Ebert-Headline.woff2') format('woff2'),
+         url('../webfonts/Ebert-Headline.woff') format('woff');
+    font-weight: 400; font-style: normal; font-display: swap;
+}
+
+/* ---------- Tokens (spec 01: paleta y roles de color) ---------- */
+:root {
+    --fondo-mapa:   #7745B4;  /* fondo del mapa */
+    --barra:        #3B1E51;  /* rail / barra lateral */
+    --encabezado:   #562C78;  /* encabezados de panel */
+    --pais:         #C8A8E3;  /* país base */
+    --pais-alterno: #B58BD2;  /* país alterno */
+    --acento:       #FFCC00;  /* selección / hover */
+    --panel:        #FFFFFF;  /* panel blanco */
+    --texto:        #2E2735;  /* texto principal */
+    --superficie:   #F4EFF8;  /* superficie secundaria */
+    --divisor:      #E7E0EC;  /* divisor */
+
+    /* Zonas: "países en lilas, contornos diferenciados" (spec 03) */
+    --trazo-nc: #562C78;  /* Norte/Centro */
+    --trazo-sn: #B58BD2;  /* Sur/Norte */
+    --trazo-ss: #3B1E51;  /* Sur/Sur */
+
+    /* Escala tipográfica (spec 02) */
+    --fuente: 'Ebert', system-ui, 'Segoe UI', sans-serif;
+    --fuente-titulo: 'Ebert Headline', 'Ebert', system-ui, sans-serif;
+    --fs-cabecera-panel: 19px;  /* Ebert Bold */
+    --fs-titulo:         17px;  /* Ebert Bold */
+    --fs-cuerpo:         14px;  /* Ebert Regular / 145 % */
+    --lh-cuerpo:         1.45;
+    --fs-listado:        13px;  /* biografías y listados */
+    --fs-etiqueta:       12px;  /* subtítulos, acordeones, botones */
+
+    --radio: 10px;
+    --sombra-panel: 0 8px 32px rgba(21, 10, 34, .45);
+    --sombra-control: 0 2px 8px rgba(21, 10, 34, .35);
+
+    --rail-ancho: 56px;
+    --panel-ancho: 410px;
+
+    --trans: 160ms ease;
+}
+
+/* ---------- Base ---------- */
+html, body {
+    margin: 0; padding: 0; height: 100%;
+    font-family: var(--fuente);
+    color: var(--texto);
+}
+body {
+    background: var(--fondo-mapa) url('../assets/web/composicion-violeta.webp') center / cover no-repeat;
+}
+#map { position: absolute; inset: 0; background: transparent; }
+.leaflet-container { background: transparent; font-family: var(--fuente); }
+
+.visually-hidden {
+    position: absolute; width: 1px; height: 1px; margin: -1px;
+    clip: rect(0 0 0 0); clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+
+/* ---------- Rail de íconos (spec: barra lateral #3B1E51) ---------- */
+.fes-rail {
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 1100;
+    width: var(--rail-ancho);
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; padding: 10px 0;
+    background: var(--barra);
+}
+.fes-rail .spacer { flex: 1; }
+.fes-tab {
+    width: 44px; height: 44px;                 /* touch target ≥ 44 px */
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: var(--radio);
+    background: transparent; color: var(--panel);
+    text-decoration: none; cursor: pointer;
+    transition: background var(--trans), color var(--trans);
+}
+.fes-tab svg { width: 22px; height: 22px; }
+.fes-tab:hover { background: rgba(255, 255, 255, .12); }
+.fes-tab[aria-selected="true"] { background: var(--acento); color: var(--barra); }
+.fes-tab:focus-visible,
+.fes-panel-close:focus-visible,
+.fes-btn:focus-visible,
+.cerrar-creditos:focus-visible {
+    outline: 3px solid var(--acento); outline-offset: 2px;
+}
+.fes-rail .fes-tab:focus-visible { outline-color: var(--panel); }
+
+/* ---------- Panel (spec: 410 px, blanco, encabezado violeta) ---------- */
+.fes-panel {
+    position: fixed; top: 0; left: var(--rail-ancho); bottom: 0; z-index: 1090;
+    width: min(var(--panel-ancho), calc(100vw - var(--rail-ancho) - 8px));
+    transform: translateX(-105%);
+    transition: transform var(--trans), visibility 0s linear var(--trans);
+    visibility: hidden;
+    display: flex; flex-direction: column;
+    background: var(--panel);
+    box-shadow: var(--sombra-panel);
+}
+.fes-panel.abierto {
+    transform: translateX(0);
+    transition: transform var(--trans);
+    visibility: visible;
+}
+.fes-panel-header {
+    flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 12px 14px;
+    background: var(--encabezado); color: var(--panel);
+    font-size: var(--fs-cabecera-panel); font-weight: 700;
+}
+.fes-panel-header h1 { margin: 0; font-size: inherit; font-weight: 700; line-height: 1.2; }
+.fes-panel-close {
+    width: 36px; height: 36px; flex: 0 0 auto;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0; border-radius: 8px;
+    background: transparent; color: var(--panel); cursor: pointer;
+    transition: background var(--trans);
+}
+.fes-panel-close:hover { background: rgba(255, 255, 255, .15); }
+.fes-panel-close svg { width: 20px; height: 20px; }
+.fes-panel-body {
+    flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain;
+    padding: 16px 18px 24px; background: var(--panel);
+}
+.fes-pane { display: none; }
+.fes-pane.active { display: block; }
+
+/* Tipografía dentro del panel */
+.fes-pane p { font-size: var(--fs-cuerpo); line-height: var(--lh-cuerpo); margin: 0 0 1em; }
+.fes-pane p.small, .fes-pane small { font-size: var(--fs-listado); line-height: var(--lh-cuerpo); }
+.fes-pane h3, .fes-section-title {
+    font-size: var(--fs-titulo); font-weight: 700; color: var(--encabezado);
+    margin: 1.2em 0 .4em;
+}
+.fes-divider { border: 0; border-top: 1px solid var(--divisor); margin: 14px 0; }
+
+/* Destacado del pane Plataformas (mismo texto, jerarquía nueva) */
+#pane-home p:first-of-type { font-size: var(--fs-titulo); font-weight: 700; color: var(--encabezado); }
+
+/* ---------- Badges ---------- */
+.fes-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    background: var(--acento); color: var(--barra);
+    font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+}
+.fes-chip {
+    display: inline-block; padding: 2px 9px; border-radius: 999px;
+    background: var(--superficie); color: var(--encabezado);
+    font-size: var(--fs-etiqueta); font-weight: 700;
+}
+
+/* ---------- Acordeón (details / summary) ---------- */
+.fes-accordion { border-top: 1px solid var(--divisor); }
+.fes-accordion details { border-bottom: 1px solid var(--divisor); }
+.fes-accordion summary {
+    list-style: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    min-height: 44px; padding: 10px 2px;
+    font-size: var(--fs-etiqueta); font-weight: 700; color: var(--texto);
+}
+.fes-accordion summary::-webkit-details-marker { display: none; }
+.fes-accordion summary::after {
+    content: "+"; flex: 0 0 auto;
+    width: 22px; height: 22px; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--superficie); color: var(--encabezado);
+    font-size: 15px; font-weight: 700; transition: background var(--trans);
+}
+.fes-accordion details[open] > summary::after { content: "−"; background: var(--acento); color: var(--barra); }
+.fes-accordion summary:focus-visible { outline: 3px solid var(--acento); outline-offset: -3px; }
+.fes-accordion .fes-accordion-body {
+    padding: 0 2px 12px; font-size: var(--fs-listado); line-height: var(--lh-cuerpo); color: var(--texto);
+}
+/* Centrales sin reseña: ítem plano, sin el + (evita el pseudo-error) */
+.fes-accordion summary.sin-resena { cursor: default; }
+.fes-accordion summary.sin-resena::after { content: none; }
+
+/* ---------- Botones y controles flotantes ---------- */
+.fes-btn {
+    display: inline-block; border: 0; cursor: pointer;
+    padding: 9px 16px; border-radius: 8px;
+    background: var(--acento); color: var(--barra);
+    font-family: var(--fuente); font-size: var(--fs-etiqueta); font-weight: 700;
+    text-decoration: none; box-shadow: var(--sombra-control);
+    transition: transform var(--trans);
+}
+.fes-btn:hover { transform: translateY(-1px); }
+.fes-btn.violeta { background: var(--encabezado); color: var(--panel); }
+
+#link-repositorio { position: fixed; right: 14px; bottom: 14px; z-index: 1200; }
+#btn-creditos     { position: fixed; right: 14px; bottom: 58px; z-index: 1200; }
+
+/* Créditos / derechos: hoja inferior (reemplazo del off-canvas) */
+.fes-creditos {
+    position: fixed; left: var(--rail-ancho); right: 0; bottom: 0; z-index: 1250;
+    max-height: 55vh; overflow-y: auto;
+    padding: 18px 22px 22px;
+    background: var(--panel); color: var(--texto);
+    box-shadow: var(--sombra-panel);
+    transform: translateY(105%); visibility: hidden;
+    transition: transform var(--trans), visibility 0s linear var(--trans);
+}
+.fes-creditos.abierto { transform: translateY(0); visibility: visible; transition: transform var(--trans); }
+.fes-creditos img#fes-logo { max-width: 160px; height: auto; margin-top: 10px; }
+.fes-creditos .cerrar-creditos {
+    position: absolute; top: 8px; right: 10px;
+    width: 36px; height: 36px; border: 0; border-radius: 8px;
+    background: var(--superficie); color: var(--encabezado); cursor: pointer;
+    font-size: 16px; font-weight: 700;
+}
+
+/* ---------- Legislación (ficha de país) ---------- */
+.fes-leg-item {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px;
+    padding: 9px 2px; border-bottom: 1px solid var(--divisor);
+    font-size: var(--fs-listado);
+}
+.fes-leg-item:last-child { border-bottom: 0; }
+.fes-leg-norma { font-weight: 700; color: var(--encabezado); }
+.fes-leg-alcance { flex: 1 1 100%; margin: 0; font-size: var(--fs-listado); line-height: var(--lh-cuerpo); }
+.fes-leg-estado {
+    padding: 2px 9px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; letter-spacing: .03em;
+}
+/* Estados semánticos heredados del viewer, adaptados a la paleta del spec */
+.estado-vigente   { background: #E2F3E4; color: #1E5B27; }  /* sancionada · vigente · publicada */
+.estado-tramite   { background: var(--acento); color: var(--barra); }  /* trámite · presentado · ingresado */
+.estado-caido     { background: #F6DEDE; color: #7A1F1F; }  /* derogado · caducado · archivado */
+.estado-sin-norma { background: var(--superficie); color: #5C5561; }  /* sin norma / sin sanción */
+.estado-otro      { background: #E3EBF6; color: #27436B; }
+/* Señal no cromática junto al color (spec: no depender solo del color) */
+.fes-leg-estado::before { content: "◆"; font-size: 9px; margin-right: 6px; }
+
+/* ---------- Mapa: estados de países (spec 03) ---------- */
+#pane-pais .pais-features-hint { color: var(--texto); }
+.pais-features path.leaflet-interactive {
+    fill: var(--pais);
+    stroke-width: 1.4;
+    transition: fill var(--trans), stroke var(--trans), stroke-width var(--trans), filter var(--trans);
+}
+.pais-features path.zona-nc { stroke: var(--trazo-nc); }
+.pais-features path.zona-sn { stroke: var(--trazo-sn); }
+.pais-features path.zona-ss { stroke: var(--trazo-ss); }
+
+/* Hover: acento + engrose de contorno + sombra */
+.pais-features path.fes-hover {
+    fill: var(--acento); stroke-width: 2.4;
+    filter: drop-shadow(0 1px 3px rgba(21, 10, 34, .5));
+}
+/* Selección: amarillo persistente + contorno fuerte (spec: "amarillo persistente") */
+.pais-features path.fes-selected {
+    fill: var(--acento); stroke: var(--encabezado); stroke-width: 2.8;
+    filter: drop-shadow(0 1px 4px rgba(21, 10, 34, .55));
+}
+/* Foco de teclado sobre el path */
+.pais-features path:focus-visible {
+    outline: none;
+    stroke: var(--panel); stroke-width: 3.2;
+    filter: drop-shadow(0 0 3px var(--barra));
+}
+
+/* ---------- Leyenda del control de capas (swatches CSS, sin PNG) ---------- */
+.lg-swatch {
+    display: inline-block; width: 14px; height: 14px;
+    border-radius: 4px; background: var(--pais);
+    vertical-align: -2px; margin-right: 6px;
+}
+.lg-nc { border: 3px solid var(--trazo-nc); }
+.lg-sn { border: 3px solid var(--trazo-sn); }
+.lg-ss { border: 3px solid var(--trazo-ss); }
+.leaflet-control-layers-overlays label { font-family: var(--fuente); font-size: var(--fs-listado); }
+
+/* ---------- Controles Leaflet con la piel del sistema ---------- */
+.leaflet-bar, .leaflet-bar a, .leaflet-control-layers {
+    border: 0; border-radius: var(--radio);
+    box-shadow: var(--sombra-control); color: var(--barra);
+}
+.leaflet-bar a { background: var(--panel); color: var(--encabezado); border-bottom-color: var(--divisor); }
+.leaflet-bar a:hover { background: var(--superficie); color: var(--barra); }
+.leaflet-touch .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; }
+.leaflet-control-layers { background: var(--panel); }
+.leaflet-control-attribution {
+    background: rgba(59, 30, 81, .72); color: #EFE7F6;
+    border-radius: 8px 0 0 0; font-size: 10px;
+}
+.leaflet-control-attribution a { color: var(--acento); }
+
+/* ---------- Skeleton de carga (Fase 3b) ---------- */
+.fes-skeleton {
+    position: relative; overflow: hidden;
+    height: 14px; margin: 10px 0; border-radius: 6px;
+    background: var(--superficie);
+}
+.fes-skeleton::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.9), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.2s infinite;
+}
+.fes-skeleton.ancho-60 { width: 60%; }
+.fes-skeleton.ancho-80 { width: 80%; }
+.fes-skeleton.alto-32 { height: 32px; }
+@keyframes shimmer { to { transform: translateX(100%); } }
+
+/* ---------- Enlaces ---------- */
+.fes-pane a, .fes-creditos a { color: var(--encabezado); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.fes-pane a:hover, .fes-creditos a:hover { color: var(--barra); }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .001s !important;
+        transition-duration: .001s !important;
+    }
+    .pais-features path.leaflet-interactive { transition: none; }
+}
