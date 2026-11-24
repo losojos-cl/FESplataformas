@@ -512,10 +512,14 @@
                 return html;
             }
 
-            function hrefFromEmbeddedAnchor(htmlString) {
-                if (!htmlString) return null;
+            function hrefFromEmbeddedAnchor(value) {
+                if (!value) return null;
+                const s = String(value).trim();
+                // Datos nuevos: URL plana (auditoría rama UX: "viewer.html?country=…")
+                if (s[0] !== '<') return /^(https?:|www\.|\.?\/?viewer\.html|paises\.html|index)/i.test(s) ? s : null;
+                // Formato antiguo: ancla HTML embebida
                 const tmp = document.createElement('div');
-                tmp.innerHTML = htmlString;
+                tmp.innerHTML = s;
                 const a = tmp.querySelector('a');
                 return a ? a.getAttribute('href') : null;
             }
