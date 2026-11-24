@@ -3,68 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalles del País - Plataformas Sindicales</title>
-    
-    <!-- jQuery (requerido por Foundation) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-    
-    <!-- Foundation CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/css/foundation.min.css" crossorigin="anonymous" />
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link rel="stylesheet" href="style.css">
+    <title>FES Plataformas — Ficha de país</title>
+
+    <!-- Tipografía del sistema de diseño -->
+    <link rel="preload" href="webfonts/Ebert-Regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="webfonts/Ebert-Bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="css/theme.css">
 </head>
-<body class="page-viewer">
-    <header class="viewer-header margin-bottom-2">
-        <div class="grid-container">
-            <div class="grid-x grid-padding-x align-middle">
-                <div class="cell auto">
-                    <h1 class="h3">FES Plataformas</h1>
-                    <!-- <p class="subheader">Detalles del país</p> -->
-                </div>
-                <div class="cell shrink">
-                    <a href="paises.html" class="button">
-                        <i class="fas fa-arrow-left"></i> Volver al repositorio
-                    </a>
-                </div>
-            </div>
+
+<body class="fes-page">
+    <div class="fes-fondo" aria-hidden="true"></div>
+
+    <nav class="fes-topbar" aria-label="Barra superior">
+        <a class="fes-tab" href="index.html" title="Volver al mapa" aria-label="Volver al mapa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        </a>
+        <span class="fes-topbar-brand">FES Plataformas</span>
+        <div class="fes-acciones">
+            <a class="fes-btn violeta" href="paises.html" title="Ver todos los países">repositorio</a>
         </div>
-    </header>
+    </nav>
 
-    <div class="grid-container">
-        <div id="country-container">
-            <div class="callout text-center">
-                <i class="fas fa-spinner fa-spin fa-2x" style="color: #1779ba; margin-bottom: 1rem;"></i>
-                <h3>Cargando información del país...</h3>
-            </div>
-        </div>
+    <main class="fes-main">
+        <article class="fes-doc" id="country-container">
+            <h1 class="fes-doc-title">Ficha de país</h1>
+            <div class="fes-skeleton ancho-60 alto-32"></div>
+            <div class="fes-skeleton ancho-80"></div>
+            <div class="fes-skeleton"></div>
+            <div class="fes-skeleton ancho-80"></div>
+            <div class="fes-skeleton ancho-60"></div>
+        </article>
+    </main>
 
-        <footer class="margin-top-3">
-            <p>Plataforma de información sindical &copy; <span id="current-year"></span></p>
-        </footer>
-    </div>
+    <footer class="fes-footer">
+        <p>Plataforma de información sindical &copy; <span id="current-year"></span></p>
+    </footer>
 
-    <!-- Foundation JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.9.0/dist/js/foundation.min.js" crossorigin="anonymous"></script>
-    
     <script>
-        // Inicializar Foundation
-        $(document).foundation();
-        
-        // Obtener parámetros de la URL
+        'use strict';
+
         const urlParams = new URLSearchParams(window.location.search);
         const countryId = urlParams.get('country');
-        
-        // Establecer el año actual en el footer
         document.getElementById('current-year').textContent = new Date().getFullYear();
-        
-        // Datos de legislación (se carga aparte)
+
         let legislacionData = null;
-        
-        // Cargar datos del país y legislación en paralelo
+
+        // Normalización de slugs: sin acentos ni espacios (coincide con el slugify del index)
+        function slugify(name) {
+            return String(name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-');
+        }
+
+        // Compat con los slugs históricos embebidos en URLPAIS (con acentos)
+        function slugLegacy(name) {
+            return String(name || '').toLowerCase().replace(/\s+/g, '-');
+        }
+
+        function esc(value) {
+            const d = document.createElement('div');
+            d.textContent = String(value == null ? '' : value);
+            return d.innerHTML;
+        }
+
         if (countryId) {
             Promise.all([
                 fetch('./data/legislacion.json').then(r => r.json()).catch(() => ({})),
@@ -76,173 +76,110 @@
         } else {
             showError('No se especificó un país para mostrar');
         }
-        
+
         function loadCountryDataRaw(countryId) {
             return Promise.all([
                 fetch('./data/paises-geo.json').then(r => r.json()),
                 fetch('./data/paises-props.json').then(r => r.json())
             ]).then(([geo, props]) => {
+                const wanted = slugify(countryId);
                 const feature = geo.features.find(f => {
                     const name = f.properties.COUNTRY;
-                    return name && name.toLowerCase().replace(/\s+/g, '-') === countryId;
+                    return name && (slugify(name) === wanted || slugLegacy(name) === countryId.toLowerCase());
                 });
                 if (!feature) return null;
                 return { ...feature, properties: { ...feature.properties, ...props[feature.properties.COUNTRY] } };
             });
         }
-        
-        function displayCountry(feature) {
-            const props = feature.properties;
-            
-            // Obtener lista de centrales
-            const centrales = [
-                {num: 1, name: props.CENTRAL1},
-                {num: 2, name: props.CENTRAL2},
-                {num: 3, name: props.CENTRAL3},
-                {num: 4, name: props.CENTRAL4},
-                {num: 5, name: props.CENTRAL5},
-                {num: 6, name: props.CENTRAL6},
-                {num: 7, name: props.CENTRAL7}
-            ].filter(central => central.name && central.name.trim() !== '');
-            
-            // Contar centrales
-            const centralesCount = centrales.length;
-            
-            // Generar HTML para las centrales (Integrando el campo resena)
-            let centralesHTML = '';
-            if (centrales.length > 0) {
-                centrales.forEach(central => {
-                    // Capturar la reseña correspondiente (resena1, resena2, etc.)
-                    const resenaTexto = props[`RESENA${central.num}`] || 'No hay reseña disponible';
-                    
-                    centralesHTML += `
-                        <div class="viewer-central-item cell medium-4 margin-bottom-1">
-                            <div class="callout" style="height: 100%;">
-                                <span class="label alert">${central.num}</span>
-                                <h5 class="viewer-central-name"><strong>${central.name}</strong></h5>
-                                <hr>
-                                <p class="central-desc small text-left">${resenaTexto}</p>
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                centralesHTML = `
-                    <div class="cell">
-                        <div class="callout warning text-center">
-                            <i class="fas fa-users fa-2x" style="margin-bottom: 1rem;"></i>
-                            <h4>No se registran centrales sindicales</h4>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // Procesar la descripción HTML (si existe)
-            let descripcionHTML = props.DESCRIPCION || '<p class="text-muted"><em>No hay descripción disponible</em></p>';
-            
-            // Crear HTML del país (Tu estructura original completa)
-            const countryHTML = `
-                    <div class="viewer-head-content grid-x align-middle margin-bottom-2">
-                        <div class="cell medium-8">
-                            <h2 class="viewer-pais-title">${props.COUNTRY || 'País sin nombre'}</h2>
-                        </div>
-                        <div class="cell medium-4 text-right">
-                            <span class="label rounded">Zona ${props.ZONA || 'Sin zona'}</span>
-                            <span class="label success rounded">
-                                <i class="fas fa-users"></i> ${centralesCount} centrales sindicales
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="viewer-description">
-                        <div class="callout">
-                            <h5><i class="fas fa-info-circle"></i> Descripción</h5>
-                            ${descripcionHTML}
-                        </div>
-                    </div>
 
-                    <hr/>
-                    
-                    <div class="margin-bottom-2">
-                        <h5><i class="fas fa-users"></i> Centrales Sindicales</h5>
-                        <div class="grid-x grid-margin-x">
-                            ${centralesHTML}
-                        </div>
-                    </div>
-                    
-                    <div class="margin-bottom-2">
-                        <h5><i class="fas fa-gavel"></i> Legislación asociada</h5>
-                        <div class="grid-x grid-margin-x">
-                            <div class="cell medium-12">
-                                <div class="callout">
-                                    ${renderLegislacionHTML(props.COUNTRY)}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="margin-bottom-2">
-                        <h5><i class="fas fa-external-link-alt"></i> Acciones</h5>
-                        <div class="button-group">
-                            <a href="paises.html" class="button"><i class="fas fa-arrow-left"></i> volver al repositorio</a>
-                            <a href="index_flotante.html" class="button secondary">
-                                 ir al mapa
-                            </a>
-                        </div>
-                    </div>
-            `;
-            
-            // Mostrar en la página
-            document.getElementById('country-container').innerHTML = countryHTML;
-            $(document).foundation(); // Asegura que Foundation reconozca el nuevo HTML
+        function estadoClass(estado) {
+            const e = String(estado || '').toLowerCase();
+            if (e.includes('sancionada') || e.includes('vigente') || e.includes('publicada')) return 'estado-vigente';
+            if (e.includes('tramitaci') || e.includes('trámite') || e.includes('ingresado') || e.includes('presentado')) return 'estado-tramite';
+            if (e.includes('derogado') || e.includes('caducado') || e.includes('archivado')) return 'estado-caido';
+            if (e.includes('no se localiz') || e.includes('sin sanci') || e.includes('sin norma')) return 'estado-sin-norma';
+            return 'estado-otro';
         }
-        
-        function getLegBadgeClass(estado) {
-            const e = (estado || '').toLowerCase();
-            if (e.includes('sancionada') || e.includes('vigente') || e.includes('publicada')) return 'leg-badge-verde';
-            if (e.includes('tramitaci') || e.includes('trámite') || e.includes('ingresado') || e.includes('presentado')) return 'leg-badge-amarillo';
-            if (e.includes('derogado') || e.includes('caducado') || e.includes('archivado')) return 'leg-badge-rojo';
-            if (e.includes('no se localiz') || e.includes('sin sanci') || e.includes('sin norma')) return 'leg-badge-gris';
-            return 'leg-badge-azul';
-        }
-        
+
         function renderLegislacionHTML(countryName) {
             if (!legislacionData || !legislacionData[countryName] || legislacionData[countryName].length === 0) {
-                return '<div class="leg-section"><p>No disponible</p></div>';
+                return '<p><small>No disponible</small></p>';
             }
-            
-            let html = '<div class="leg-section"><div class="leg-table">';
+            let html = '';
             legislacionData[countryName].forEach(entry => {
-                const badgeClass = getLegBadgeClass(entry.estado);
-                const enlace1 = entry.enlace ? `<a href="${entry.enlace}" target="_blank" rel="noopener" class="leg-link"><i class="fas fa-external-link-alt"></i> Ver norma</a>` : '';
-                const enlace2 = entry.enlace2 ? ` | <a href="${entry.enlace2}" target="_blank" rel="noopener" class="leg-link"><i class="fas fa-external-link-alt"></i> Complementario</a>` : '';
-                html += `
-                    <div class="leg-entry">
-                        <div class="leg-entry-header">
-                            <span class="leg-badge ${badgeClass}">${entry.tipo}</span>
-                            <strong>${entry.norma}</strong>
-                        </div>
-                        <div class="leg-entry-body">
-                            <p class="leg-alcance">${entry.alcance}</p>
-                            <p class="leg-estado"><i class="fas fa-info-circle"></i> ${entry.estado}</p>
-                            ${enlace1}${enlace2}
-                        </div>
-                    </div>
-                `;
+                html += '<div class="fes-leg-item">'
+                    + '<span class="fes-leg-norma">' + esc(String(entry.tipo) + ' ' + String(entry.norma)).trim() + '</span>'
+                    + '<span class="fes-leg-estado ' + estadoClass(entry.estado) + '">' + esc(entry.estado) + '</span>';
+                if (entry.alcance) html += '<p class="fes-leg-alcance">' + esc(entry.alcance) + '</p>';
+                if (entry.enlace) html += '<a href="' + entry.enlace + '" target="_blank" rel="noopener noreferrer">ver norma</a>';
+                if (entry.enlace2) html += '<a href="' + entry.enlace2 + '" target="_blank" rel="noopener noreferrer">fuente adicional</a>';
+                html += '</div>';
             });
-            html += '</div></div>';
             return html;
         }
-        
+
+        function renderCentrales(props) {
+            const centrales = [];
+            for (let i = 1; i <= 7; i++) {
+                const name = props['CENTRAL' + i];
+                if (name && String(name).trim() !== '') centrales.push({ i, name, res: props['RESENA' + i] });
+            }
+            if (centrales.length === 0) {
+                return { html: '<p><small>No se registran centrales sindicales.</small></p>', count: 0 };
+            }
+            let html = '<div class="fes-accordion">';
+            centrales.forEach(c => {
+                if (c.res && String(c.res).trim() !== '') {
+                    html += '<details><summary>' + esc(c.name) + '</summary>'
+                        + '<div class="fes-accordion-body"><small>' + esc(c.res) + '</small></div></details>';
+                } else {
+                    // Sin reseña: ítem plano, sin el signo + (no es un error)
+                    html += '<div class="fes-item-plain">' + esc(c.name) + '</div>';
+                }
+            });
+            html += '</div>';
+            return { html, count: centrales.length };
+        }
+
+        function displayCountry(feature) {
+            const props = feature.properties;
+            const centrales = renderCentrales(props);
+            const mapaSlug = slugify(props.COUNTRY || '');
+
+            document.getElementById('country-container').innerHTML = `
+                <h1 class="fes-doc-title">${esc(props.COUNTRY || 'País sin nombre')}</h1>
+
+                <div class="fes-badges">
+                    <span class="fes-badge">Zona ${esc(props.ZONA || 'Sin zona')}</span>
+                    <span class="fes-chip">${centrales.count} centrales sindicales</span>
+                </div>
+
+                <h3 class="fes-section-title">Descripción</h3>
+                ${props.DESCRIPCION || '<p><small><em>No hay descripción disponible</em></small></p>'}
+
+                <hr class="fes-divider">
+
+                <h3 class="fes-section-title">Centrales sindicales</h3>
+                ${centrales.html}
+
+                <h3 class="fes-section-title">Legislación asociada</h3>
+                ${renderLegislacionHTML(props.COUNTRY)}
+
+                <h3 class="fes-section-title">Acciones</h3>
+                <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                    <a class="fes-btn" href="index.html?pais=${encodeURIComponent(mapaSlug)}" title="Ver este país en el mapa">ir al mapa</a>
+                    <a class="fes-btn violeta" href="paises.html" title="Volver al listado de países">volver al repositorio</a>
+                </div>
+            `;
+            document.title = 'FES Plataformas — ' + (props.COUNTRY || 'País');
+        }
+
         function showError(message) {
             document.getElementById('country-container').innerHTML = `
-                <div class="callout alert text-center">
-                    <h4><i class="fas fa-exclamation-triangle"></i> ${message}</h4>
-                    <p style="margin-top: 1rem;">
-                        <a href="paises.html" class="button">
-                            <i class="fas fa-arrow-left"></i> Volver al repositorio
-                        </a>
-                    </p>
+                <h1 class="fes-doc-title">Ficha de país</h1>
+                <div class="fes-error">
+                    <p><strong>${esc(message)}</strong></p>
+                    <p><a class="fes-btn violeta" href="paises.html" style="margin-top:8px">volver al repositorio</a></p>
                 </div>
             `;
         }
